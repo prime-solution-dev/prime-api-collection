@@ -1,0 +1,39 @@
+meta {
+  name: 09 Save Consol In Full
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{DOC_URL}}/transfer/update-transfer
+  body: json
+  auth: inherit
+}
+
+body:json {
+  []
+}
+
+script:pre-request {
+  const inn = JSON.parse(bru.getVar("inTransfer"));
+  inn.status = "PENDING";
+  inn.transfer_item.forEach(it => {
+    it.dest_site_code = bru.getEnvVar("siteCode");
+    it.dest_warehouse_code = bru.getEnvVar("warehouseCode");
+    it.dest_location_code = bru.getEnvVar("destLocation");
+    it.transfer_confirm = [{
+      warehouse_code: bru.getEnvVar("warehouseCode"),
+      location_code: bru.getEnvVar("destLocation"),
+      batch_no: it.batch_no,
+      storage_type: it.storage_type,
+      receive_date: it.receive_date,
+      qty: it.qty,
+      unit_code: it.unit_code
+    }];
+  });
+  req.setBody([inn]);
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}

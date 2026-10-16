@@ -1,0 +1,40 @@
+meta {
+  name: 10a Check Stock After In
+  type: http
+  seq: 10
+}
+
+docs {
+  รันหลัง 10 (ต้องรัน 00 ก่อนเพื่อเก็บ baseline): Consol Location กลับเท่า baseline (ยอดจองหาย), dest เพิ่ม qty
+}
+
+post {
+  url: {{WH_URL}}/Inventory/v2/GetInventoryOnhand
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "location_codes": ["{{srcLocation}}", "{{consolLocation}}", "{{destLocation}}"],
+    "product_codes": ["{{productCode}}"]
+  }
+}
+
+tests {
+  const sum = {};
+  (res.body.datas || []).forEach(d => {
+    const s = sum[d.location_code] || (sum[d.location_code] = { qty: 0, reserved: 0 });
+    s.qty += d.qty; s.reserved += d.qty_reserved;
+  });
+  const base = JSON.parse(bru.getVar("stockBaseline"));
+  const get = (m, l) => m[l] || { qty: 0, reserved: 0 };
+  const q = Number(bru.getEnvVar("qty"));
+  const src = bru.getEnvVar("srcLocation"), con = bru.getEnvVar("consolLocation"), dst = bru.getEnvVar("destLocation");
+  test("src -qty", function () { expect(get(sum, src).qty).to.equal(get(base, src).qty - q); });
+  test("consol back to baseline, reservation released", function () {
+    expect(get(sum, con).qty).to.equal(get(base, con).qty);
+    expect(get(sum, con).reserved).to.equal(get(base, con).reserved);
+  });
+  test("dest +qty", function () { expect(get(sum, dst).qty).to.equal(get(base, dst).qty + q); });
+}

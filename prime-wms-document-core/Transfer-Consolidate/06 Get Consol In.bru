@@ -1,0 +1,43 @@
+meta {
+  name: 06 Get Consol In
+  type: http
+  seq: 6
+}
+
+docs {
+  หน้าแรก Transfer In: กรอง TF-CONSOL-IN (+ document_refs ถ้าต้องการเฉพาะใบ)
+}
+
+post {
+  url: {{DOC_URL}}/transfer/get-transfer
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "page": 1,
+    "page_size": 20,
+    "transfer_types": ["TF-CONSOL-IN"],
+    "transfer_codes": [],
+    "status": [],
+    "document_refs": ["{{consolidateNo}}"]
+  }
+}
+
+script:post-response {
+  const inn = (res.body.putaway || [])[0];
+  if (inn) bru.setVar("inTransfer", JSON.stringify(inn));
+}
+
+tests {
+  test("Consol In filled from Consol Out confirmations", function () {
+    expect(res.status).to.equal(200);
+    const inn = res.body.putaway[0];
+    expect(inn.transfer_item.length).to.be.greaterThan(0);
+    inn.transfer_item.forEach(it => {
+      expect(it.src_location_code).to.equal(bru.getEnvVar("consolLocation"));
+      expect(it.dest_location_code).to.equal("");
+    });
+  });
+}

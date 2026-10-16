@@ -1,0 +1,22 @@
+meta {
+  name: 08 Complete Consol In Partial (reject)
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{DOC_URL}}/transfer/update-transfer-complete
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {"transferId": "{{inId}}", "status": "COMPLETED"}
+}
+
+tests {
+  test("rejected: not fully confirmed", function () {
+    expect(res.status).to.equal(500);
+    expect(res.body.error).to.contain("not fully confirmed");
+  });
+}

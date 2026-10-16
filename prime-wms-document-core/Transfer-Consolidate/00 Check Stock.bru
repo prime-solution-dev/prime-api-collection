@@ -1,0 +1,39 @@
+meta {
+  name: 00 Check Stock
+  type: http
+  seq: 0
+}
+
+docs {
+  ดูสต็อกที่ src / Consol / dest location — รันก่อนเริ่ม และหลัง 05, 10
+  คาดหวัง:
+  - หลัง 05: srcLocation qty ลด, consolLocation qty เพิ่ม และ qty_reserved = qty (จองให้ Consol In)
+  - หลัง 10: consolLocation qty ลดกลับ + reserved หาย, destLocation qty เพิ่ม
+}
+
+post {
+  url: {{WH_URL}}/Inventory/v2/GetInventoryOnhand
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "location_codes": ["{{srcLocation}}", "{{consolLocation}}", "{{destLocation}}"],
+    "product_codes": ["{{productCode}}"]
+  }
+}
+
+script:post-response {
+  // เก็บ baseline (qty/qty_reserved ต่อ location) ไว้ให้ 05a / 10a เทียบ
+  const sum = {};
+  (res.body.datas || []).forEach(d => {
+    const s = sum[d.location_code] || (sum[d.location_code] = { qty: 0, reserved: 0 });
+    s.qty += d.qty; s.reserved += d.qty_reserved;
+  });
+  bru.setVar("stockBaseline", JSON.stringify(sum));
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}

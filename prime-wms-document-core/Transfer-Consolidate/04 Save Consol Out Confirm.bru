@@ -1,0 +1,42 @@
+meta {
+  name: 04 Save Consol Out Confirm
+  type: http
+  seq: 4
+}
+
+docs {
+  บันทึกการหยิบของ Consol Out ผ่าน update-transfer (status ต้องไม่ใช่ COMPLETED)
+  body สร้างจาก Consol Out ที่ได้จาก 03 + เติม transfer_confirm ปลายทาง = Consol Location เต็มจำนวน
+}
+
+post {
+  url: {{DOC_URL}}/transfer/update-transfer
+  body: json
+  auth: inherit
+}
+
+body:json {
+  []
+}
+
+script:pre-request {
+  const out = JSON.parse(bru.getVar("outTransfer"));
+  out.status = "PENDING";
+  out.transfer_item.forEach(it => {
+    it.transfer_confirm = [{
+      warehouse_code: it.dest_warehouse_code,
+      zone_code: it.dest_zone_code,
+      location_code: it.dest_location_code,
+      batch_no: it.batch_no,
+      storage_type: it.storage_type,
+      receive_date: it.receive_date,
+      qty: it.qty,
+      unit_code: it.unit_code
+    }];
+  });
+  req.setBody([out]);
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}

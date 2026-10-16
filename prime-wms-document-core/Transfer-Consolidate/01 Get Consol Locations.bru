@@ -1,0 +1,35 @@
+meta {
+  name: 01 Get Consol Locations
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{WH_URL}}/Warehouse/GetLocationMaster
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "is_transfer_consol_staging": true,
+    "site_codes": ["{{siteCode}}"],
+    "warehouse_codes": ["{{warehouseCode}}"],
+    "page": 1,
+    "page_size": 50
+  }
+}
+
+tests {
+  test("200 + consol location exists", function () {
+    expect(res.status).to.equal(200);
+    const codes = (res.body.locations || []).map(l => l.location_code);
+    expect(codes).to.include(bru.getEnvVar("consolLocation"));
+    (res.body.locations || []).forEach(l => expect(l.is_transfer_consol_staging).to.equal(true));
+  });
+}
+
+docs {
+  HH ใช้เส้นนี้ list / validate Consol Location (location ที่ติด flag is_transfer_consol_staging)
+  validate: ส่ง location_code ที่ scan มาใน location_code แล้วถ้า locations ว่าง = ไม่ใช่ Consol Location
+}

@@ -1,0 +1,38 @@
+meta {
+  name: 03 Get Pair by Consolidate No
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{DOC_URL}}/transfer/get-transfer
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "page": 1,
+    "page_size": 20,
+    "transfer_types": [],
+    "transfer_codes": [],
+    "status": [],
+    "document_refs": ["{{consolidateNo}}"]
+  }
+}
+
+script:post-response {
+  const out = (res.body.putaway || []).find(t => t.transfer_type === "TF-CONSOL-OUT");
+  if (out) bru.setVar("outTransfer", JSON.stringify(out));
+}
+
+tests {
+  test("pair shares document_ref, Consol In has no items", function () {
+    expect(res.status).to.equal(200);
+    const list = res.body.putaway;
+    expect(list.length).to.equal(2);
+    list.forEach(t => expect(t.document_ref).to.equal(bru.getVar("consolidateNo")));
+    const inn = list.find(t => t.transfer_type === "TF-CONSOL-IN");
+    expect(inn.transfer_item || []).to.have.length(0);
+  });
+}

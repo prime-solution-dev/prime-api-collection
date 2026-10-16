@@ -1,0 +1,29 @@
+meta {
+  name: Find Location
+  type: http
+  seq: 2
+}
+
+docs {
+  หา location ตามชื่อ (location_code_like) — location_code เป็น array ถ้าส่ง string จะ filter ไม่ทำงาน
+}
+
+post {
+  url: {{WH_URL}}/Warehouse/GetLocationMaster
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "location_code_like": "Floor",
+    "site_codes": ["{{siteCode}}"],
+    "warehouse_codes": ["{{warehouseCode}}"],
+    "page": 1,
+    "page_size": 50
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}

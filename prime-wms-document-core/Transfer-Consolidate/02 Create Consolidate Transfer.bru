@@ -1,0 +1,57 @@
+meta {
+  name: 02 Create Consolidate Transfer
+  type: http
+  seq: 2
+}
+
+docs {
+  ส่ง Consol Out ใบเดียว + is_consolidate: true
+  backend ออกเลข CTF / TFO / TFI และสร้าง Consol In (ยังไม่มี item) ให้เอง
+  receive_date ต้องตรงกับ subkey ของสต็อกที่ src (ดูจาก 00 → receive_date) และ storage_type ต้องตรงกับสต็อก ไม่งั้นตอน complete จะ error "not found inventory"
+}
+
+post {
+  url: {{DOC_URL}}/transfer/create-transfer
+  body: json
+  auth: inherit
+}
+
+body:json {
+  [{
+    "is_consolidate": true,
+    "company_code": "{{companyCode}}",
+    "status": "PENDING",
+    "transfer_item": [{
+      "transfer_item": "1",
+      "product_code": "{{productCode}}",
+      "unit_code": "{{unitCode}}",
+      "qty": {{qty}},
+      "receive_date": "{{receiveDate}}",
+      "storage_type": "{{storageType}}",
+      "src_site_code": "{{siteCode}}",
+      "src_warehouse_code": "{{warehouseCode}}",
+      "src_location_code": "{{srcLocation}}",
+      "dest_site_code": "{{siteCode}}",
+      "dest_warehouse_code": "{{warehouseCode}}",
+      "dest_location_code": "{{consolLocation}}"
+    }]
+  }]
+}
+
+script:post-response {
+  const b = res.body || {};
+  bru.setVar("consolidateNo", b.consolidate_no);
+  (b.transfers || []).forEach(t => {
+    if (t.transfer_type === "TF-CONSOL-OUT") { bru.setVar("outId", t.id); bru.setVar("outCode", t.transfer_code); }
+    if (t.transfer_type === "TF-CONSOL-IN") { bru.setVar("inId", t.id); bru.setVar("inCode", t.transfer_code); }
+  });
+}
+
+tests {
+  test("returns consolidate number + 2 transfers", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.consolidate_no).to.match(/^CTF/);
+    const types = res.body.transfers.map(t => t.transfer_type).sort();
+    expect(types).to.eql(["TF-CONSOL-IN", "TF-CONSOL-OUT"]);
+  });
+}

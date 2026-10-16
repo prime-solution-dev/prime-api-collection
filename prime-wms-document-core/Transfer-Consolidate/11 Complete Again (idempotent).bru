@@ -1,0 +1,22 @@
+meta {
+  name: 11 Complete Again (idempotent)
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{DOC_URL}}/transfer/update-transfer-complete
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {"transferId": "{{inId}}", "status": "COMPLETED"}
+}
+
+tests {
+  test("already completed", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.message).to.equal("already completed");
+  });
+}

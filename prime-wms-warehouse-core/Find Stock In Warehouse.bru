@@ -1,0 +1,29 @@
+meta {
+  name: Find Stock In Warehouse
+  type: http
+  seq: 1
+}
+
+docs {
+  หาสต็อกที่ใช้เป็น srcLocation ได้ (ดู storage_type / receive_date / batch / pallet ของแถวที่เลือกแล้วใส่ใน env)
+}
+
+post {
+  url: {{WH_URL}}/Inventory/v2/GetInventoryOnhand
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "company_code": "{{companyCode}}",
+    "site_code": "{{siteCode}}",
+    "warehouse_code": ["{{warehouseCode}}"],
+    "page": 1,
+    "page_size": 200
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}

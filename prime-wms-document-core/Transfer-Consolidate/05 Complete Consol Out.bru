@@ -1,0 +1,26 @@
+meta {
+  name: 05 Complete Consol Out
+  type: http
+  seq: 5
+}
+
+docs {
+  ปิด Consol Out: ย้ายสต็อกเข้า Consol Location, เติม item ให้ Consol In และจองสต็อกที่ Consol Location ให้ Consol In
+}
+
+post {
+  url: {{DOC_URL}}/transfer/update-transfer-complete
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {"transferId": "{{outId}}", "status": "COMPLETED"}
+}
+
+tests {
+  test("completed", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.message).to.equal("Transfer completed successfully");
+  });
+}
