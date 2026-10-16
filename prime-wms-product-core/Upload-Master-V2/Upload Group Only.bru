@@ -1,0 +1,31 @@
+meta {
+  name: Upload Group Only
+  type: http
+  seq: 1
+}
+
+docs {
+  อัปโหลด xlsx แบบ group-only: ชีต Product-Group-Master + Product-Group-Code ต้องมีข้อมูล
+  ส่วน Product-Master และ Productgroup-Mapping ต้อง "ไม่มี" หรือมีแต่ header (ถ้ามีข้อมูลแค่ชีตเดียว = 400)
+  คาดหวัง: 200, summary.products = 0, ไม่แตะ product/unit/barcode/warehouse hook
+  ตั้ง env: companyCode, siteCode, uploadFile (path ไฟล์ .xlsx ในเครื่อง ห้ามใส่ secret)
+}
+
+post {
+  url: {{PRODUCT_URL}}/Product/upload-master-products-v2
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  company_code: {{companyCode}}
+  site_code: {{siteCode}}
+  file: @file({{uploadFile}})
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("group-only: products = 0", function () {
+    expect(res.body.summary.products).to.equal(0);
+  });
+}
