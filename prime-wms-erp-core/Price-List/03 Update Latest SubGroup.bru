@@ -1,0 +1,29 @@
+meta {
+  name: 03 Update Latest SubGroup
+  type: http
+  seq: 3
+}
+
+docs {
+  คำนวณราคา subgroup ใหม่ตามสูตร (เส้นเดียวกับ cascade ตอนแก้ราคาฐาน / save extra)
+  สูตรที่ต้องใช้ base_price จะถูกข้ามเมื่อราคาฐานของ group เป็น 0 -> kg ที่กรอกเองต้องไม่ถูกทับเป็น 0
+  รัน 02 ซ้ำหลังข้อนี้ ค่าต้องเหมือนเดิม
+}
+
+post {
+  url: {{ERP_URL}}/price/SubGroup/UpdateLatest
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "update_type": "subgroup",
+    "subgroup_ids": ["{{subGroupId}}"]
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("success", function () { expect(res.body.success).to.equal(true); });
+}

@@ -1,0 +1,36 @@
+meta {
+  name: 01 Save SubGroup kg
+  type: http
+  seq: 1
+}
+
+docs {
+  save ราคา kg ที่กรอกเองจากหน้า detail (group ที่ราคาฐานของ uom นั้น = 0 เช่น GROUP_1_ITEM_6)
+  ส่งเฉพาะ total_net_price_weight -> backend คำนวณสูตรที่ขึ้นกับ kg (pcs = kg*weight_spec) ก่อนเขียน
+  แล้วบันทึกรวมใน transaction เดียว (history 1 แถว) · สูตรของ uom ที่ส่งมาเองไม่รัน (ค่าที่กรอกชนะ)
+  สูตรที่ไม่ขึ้นกับ kg ไม่รัน · extra ไม่ถูกแตะ
+  ถ้าไม่มี weight_spec / avg_kg_stock สูตรนั้นถูกข้าม (ไม่ใช้ fallback 1.0) · warehouse ล้ม = error และไม่มีอะไรถูกบันทึก
+  ตั้ง env: subGroupId (subgroup ของ group ที่ไม่มีราคาฐาน), kgPrice
+}
+
+post {
+  url: {{ERP_URL}}/price/UpdatePriceListSubGroup
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "changes": [
+      {
+        "subgroup_id": "{{subGroupId}}",
+        "total_net_price_weight": {{kgPrice}}
+      }
+    ]
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("success", function () { expect(res.body.success).to.equal(true); });
+}

@@ -1,0 +1,33 @@
+meta {
+  name: 02 Verify pcs
+  type: http
+  seq: 2
+}
+
+docs {
+  หลัง 01 need_recalculate = false จึงคืนค่าใน DB ตรง ๆ
+  คาดหวัง: total_net_price_weight = kgPrice และ total_net_price_unit = kgPrice x weightSpec (4150 x 148 = 614200)
+  weightSpec ต้องตรงกับ weight_spec ของสินค้าใน product master
+}
+
+post {
+  url: {{ERP_URL}}/price/SubGroup/GetCalculated
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "subgroup_ids": ["{{subGroupId}}"]
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("kg คงตามที่กรอก, pcs = kg x weight_spec", function () {
+    const row = res.body.data[0];
+    const kg = Number(bru.getEnvVar("kgPrice"));
+    expect(row.total_net_price_weight).to.equal(kg);
+    expect(row.total_net_price_unit).to.equal(Math.round(kg * Number(bru.getEnvVar("weightSpec")) * 100) / 100);
+  });
+}
