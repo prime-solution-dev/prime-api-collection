@@ -1,0 +1,38 @@
+meta {
+  name: 12 Get Consol In By Location
+  type: http
+  seq: 12
+}
+
+docs {
+  HH สแกน Consol Location แล้วหา Transfer In ที่มี item ต้นทาง (src_location_code) อยู่ที่ location นั้น
+  src_location_codes: exact IN, คืน header ถ้ามี item อย่างน้อย 1 รายการตรง; array ว่าง = ไม่กรอง
+}
+
+post {
+  url: {{DOC_URL}}/transfer/get-transfer
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "page": 1,
+    "page_size": 20,
+    "transfer_types": ["TF-CONSOL-IN"],
+    "src_location_codes": ["{{consolLocation}}"]
+  }
+}
+
+tests {
+  test("200 + every Consol In has an item from the scanned location", function () {
+    expect(res.status).to.equal(200);
+    const rows = res.body.putaway || [];
+    expect(rows.length).to.be.greaterThan(0);
+    rows.forEach(tr => {
+      expect(tr.transfer_type).to.equal("TF-CONSOL-IN");
+      const codes = (tr.transfer_item || []).map(it => it.src_location_code);
+      expect(codes).to.include(bru.getEnvVar("consolLocation"));
+    });
+  });
+}
