@@ -1,0 +1,32 @@
+meta {
+  name: 13 Claim Consol In Task
+  type: http
+  seq: 13
+}
+
+docs {
+  HH กดเริ่มงาน Transfer In = lock งาน (1 งาน 1 คน) ด้วย merge-transfer-working
+  document_code = transfer_code ของ Consol In; ถ้ามีผู้ใช้อื่นถืออยู่ ได้ error "transfer <code> is being worked by <user>"
+  ผู้ใช้เดิม claim ซ้ำได้; รันหลัง 06 (ต้องมี inCode)
+}
+
+post {
+  url: {{DOC_URL}}/transfer/merge-transfer-working
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "keys": {"document_code": true},
+    "datas": [{"document_code": "{{inCode}}", "user_code": "{{workingUser}}", "company_code": "{{companyCode}}", "site_code": "{{siteCode}}", "location_code": "{{consolLocation}}"}]
+  }
+}
+
+tests {
+  test("200 claim ok", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.message).to.equal("success");
+    expect(res.body.insert_count).to.equal(1);
+  });
+}

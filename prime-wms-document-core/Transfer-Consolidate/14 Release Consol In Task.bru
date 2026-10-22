@@ -1,0 +1,30 @@
+meta {
+  name: 14 Release Consol In Task
+  type: http
+  seq: 14
+}
+
+docs {
+  HH ออกจากงาน Transfer In โดยไม่ complete = ปล่อย lock ด้วย update-clear-transfer-working
+  (ถ้า complete แล้ว ระบบลบ transfer_working ให้เอง ไม่ต้องเรียก)
+}
+
+post {
+  url: {{DOC_URL}}/transfer/update-clear-transfer-working
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "keys": {"document_code": true},
+    "datas": [{"document_code": "{{inCode}}"}]
+  }
+}
+
+tests {
+  test("200 release ok", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.message).to.equal("success");
+  });
+}

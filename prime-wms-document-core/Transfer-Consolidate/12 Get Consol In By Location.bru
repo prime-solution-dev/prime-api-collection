@@ -7,6 +7,7 @@ meta {
 docs {
   HH สแกน Consol Location แล้วหา Transfer In ที่มี item ต้นทาง (src_location_code) อยู่ที่ location นั้น
   src_location_codes: exact IN, คืน header ถ้ามี item อย่างน้อย 1 รายการตรง; array ว่าง = ไม่กรอง
+  sort_in_progress_first: true = ใบที่มีคนถืองาน (transfer_working) ขึ้นก่อน; response มี working_user_code ("" = ว่าง)
 }
 
 post {
@@ -20,7 +21,8 @@ body:json {
     "page": 1,
     "page_size": 20,
     "transfer_types": ["TF-CONSOL-IN"],
-    "src_location_codes": ["{{consolLocation}}"]
+    "src_location_codes": ["{{consolLocation}}"],
+    "sort_in_progress_first": true
   }
 }
 
