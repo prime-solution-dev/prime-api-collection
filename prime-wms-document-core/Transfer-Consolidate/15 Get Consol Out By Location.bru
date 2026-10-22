@@ -1,0 +1,39 @@
+meta {
+  name: 15 Get Consol Out By Location
+  type: http
+  seq: 15
+}
+
+docs {
+  หา Transfer Out (Consol Out) ที่มี item ปลายทาง (dest_location_code) เป็น Consol Location ที่ระบุ
+  dest_location_codes: exact IN, คืน header ถ้ามี item อย่างน้อย 1 รายการตรง; array ว่าง = ไม่กรอง; ใช้ร่วมกับ src_location_codes ได้ (AND)
+  รันหลัง 02 (ผลต้องมี Consol Out ของ flow นี้)
+}
+
+post {
+  url: {{DOC_URL}}/transfer/get-transfer
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "page": 1,
+    "page_size": 50,
+    "transfer_types": ["TF-CONSOL-OUT"],
+    "dest_location_codes": ["{{consolLocation}}"]
+  }
+}
+
+tests {
+  test("200 + every Consol Out has an item going to the location, incl. this flow's", function () {
+    expect(res.status).to.equal(200);
+    const rows = res.body.putaway || [];
+    rows.forEach(tr => {
+      expect(tr.transfer_type).to.equal("TF-CONSOL-OUT");
+      const codes = (tr.transfer_item || []).map(it => it.dest_location_code);
+      expect(codes).to.include(bru.getEnvVar("consolLocation"));
+    });
+    expect(rows.map(r => r.transfer_code)).to.include(bru.getVar("outCode"));
+  });
+}
