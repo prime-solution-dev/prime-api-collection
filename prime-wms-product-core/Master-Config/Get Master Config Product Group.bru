@@ -1,0 +1,31 @@
+meta {
+  name: Get Master Config Product Group
+  type: http
+  seq: 1
+}
+
+docs {
+  ถาม master_config ของหน้า Product Group (ใช้โดย ProductGroupItem.vue)
+  ถ้า env นั้นตั้ง HIDE_FIELD ไว้ (เช่น Crossmax) จะได้ actions: ["HIDE_FIELD"] ถ้าไม่ตั้งไว้ actions จะว่าง/ไม่มี row
+  endpoint อยู่ใน auth service (นอก repo prime-wms)
+}
+
+post {
+  url: {{AUTH_URL}}/config/get-master-config
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "datas": [
+      { "module_code": "MASTER", "topic_code": "PRODUCT_GROUP", "item_code": "M-Product-Group", "section": "HEADER", "field_name": "parent_group" },
+      { "module_code": "MASTER", "topic_code": "PRODUCT_GROUP", "item_code": "M-Product-Group", "section": "ITEM", "field_name": "parent_group_name" }
+    ]
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("datas is array", function () { expect(res.body.datas).to.be.an("array"); });
+}
