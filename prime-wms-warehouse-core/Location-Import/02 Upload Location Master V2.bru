@@ -1,0 +1,29 @@
+meta {
+  name: Upload Location Master V2
+  type: http
+  seq: 2
+}
+
+docs {
+  import Location Master (multipart: file, company_code, site_code) — upsert location ด้วย warehouse + location_code
+  แถวที่กรอก Pick Seq. จะเขียน location.pick_sequence และ upsert location_seq (seq_type = PICK, key: company_code + warehouse_code + site_code + location_code + seq_type)
+  Pick Seq. ว่าง = ไม่แตะ location_seq
+  ไฟล์: เซฟ template จาก request 01 เป็น Location-Import/WMS_Location_Master_Template.xlsx — ระวัง: เขียนข้อมูลจริงลง DB ของ env ที่เลือก
+}
+
+post {
+  url: {{WH_URL}}/Warehouse/upload-location-master-v2
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  file: @file(WMS_Location_Master_Template.xlsx)
+  company_code: {{companyCode}}
+  site_code: {{siteCode}}
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("summary", function () { expect(res.body.summary).to.have.property("inserted"); });
+}

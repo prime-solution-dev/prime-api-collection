@@ -1,0 +1,19 @@
+meta {
+  name: Download Location Template
+  type: http
+  seq: 1
+}
+
+docs {
+  ดาวน์โหลด WMS_Location_Master_Template.xlsx (sheet "Location Master" + "Alert error")
+}
+
+get {
+  url: {{WH_URL}}/Warehouse/upload-location-master-v2/template
+  body: none
+  auth: inherit
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}
