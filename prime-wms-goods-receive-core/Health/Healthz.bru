@@ -1,0 +1,20 @@
+meta {
+  name: Healthz
+  type: http
+  seq: 1
+}
+
+docs {
+  เช็กสถานะ container (liveness) — ไม่ต้องใช้ token, คืน {"status":"ok"} ถ้า process ยังรับ request ได้
+}
+
+get {
+  url: {{GR_URL}}/healthz
+  body: none
+  auth: none
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("status ok", function () { expect(res.body.status).to.equal("ok"); });
+}
