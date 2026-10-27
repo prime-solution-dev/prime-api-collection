@@ -1,0 +1,28 @@
+meta {
+  name: Get Group Without Items
+  type: http
+  seq: 1
+}
+
+docs {
+  POST /Product/GetGroup โดยส่ง without_items=true จะได้รายการ group อย่างเดียว (items เป็น [] เสมอ) ไม่ดึง item ทั้งหมด (เดิม ~415k แถว / 160 MB)
+  without_items=false หรือไม่ส่ง = พฤติกรรมเดิม
+}
+
+post {
+  url: {{PRODUCT_URL}}/Product/GetGroup
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "group_codes": [],
+    "item_codes": [],
+    "without_items": true
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}

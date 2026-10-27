@@ -1,0 +1,34 @@
+meta {
+  name: Get Group Items
+  type: http
+  seq: 2
+}
+
+docs {
+  POST /Product/GetGroupItems ดึง item ของ group เดียวแบบค้นหา + แบ่งหน้า
+  group_code จำเป็น, keyword ค้น item_code/item_name (ILIKE), page เริ่ม 1, page_size default 50 สูงสุด 200
+  parents (optional) = คู่ group/value ที่เลือกในฟอร์มสินค้า ใช้กรอง child group:
+  ถ้า group นี้เป็น child group (มี item ใด item หนึ่งมี parent) จะคืนเฉพาะ item ที่ parent ตรงกับ parents (parents ว่าง = 0 แถว) ถ้าไม่ใช่ child group จะไม่กรอง
+  keyword ค้นแบบ literal (escape %, _, \)
+  response: { items: [], total, is_child_group }
+}
+
+post {
+  url: {{PRODUCT_URL}}/Product/GetGroupItems
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "group_code": "PG02",
+    "keyword": "jl12",
+    "parents": [{ "group_code": "PG01", "item_code": "Accessories" }],
+    "page": 1,
+    "page_size": 50
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}
