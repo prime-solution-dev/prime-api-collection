@@ -1,0 +1,30 @@
+meta {
+  name: Get Orders
+  type: http
+  seq: 1
+}
+
+docs {
+  รายการ Customer Order (หน้า WMS / Outbound / Customer Order) — ship_to_name ไม่ได้เก็บใน order แต่ lookup จาก master shipping address ตาม ship_to_code; order ที่ ship_to_code ว่างต้องได้ ship_to_name ว่าง
+}
+
+post {
+  url: {{ORDER_URL}}/Order/GetOrders
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "page": 1,
+    "page_size": 10
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("no ship_to_name without ship_to_code", function () {
+    const orders = res.body.orders || [];
+    orders.filter(o => !o.ship_to_code).forEach(o => expect(o.ship_to_name).to.equal(""));
+  });
+}
