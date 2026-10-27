@@ -1,0 +1,42 @@
+meta {
+  name: Print OB-PO (TSN PO PDF)
+  type: http
+  seq: 1
+}
+
+docs {
+  ปุ่ม print PO บนหน้า /customer-order (OUTBOUND/OB-PO)
+  flow: sell-order (sale_code = order_code) -> document_ref -> oms get-orders -> order_document
+  - document_path (S3 URL, order ที่ sync หลัง 2026-09-21) -> ดาวน์โหลดจาก S3
+  - ไม่มี path -> decode document_base64 (order เก่า)
+  แล้ว merge เป็น PDF เดียว
+  poButtonId เป็น id ของ module_report_buttons ต่อ env (ค่านี้คือ crossmax)
+  token ไม่เก็บใน repo: รันด้วย --env-var token=<jwt>
+}
+
+post {
+  url: {{DOC_URL}}/module-report-buttons/action
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "id": "{{poButtonId}}",
+    "data": { "orders": [{ "order_code": "{{poOrderCode}}" }] }
+  }
+}
+
+vars:pre-request {
+  poButtonId: db15a44a-f12c-415a-8cab-bb5f79b9a8dc
+  poOrderCode: SO1026105461
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("returns PDF", function () { expect(res.headers["content-type"]).to.contain("application/pdf"); });
+}
