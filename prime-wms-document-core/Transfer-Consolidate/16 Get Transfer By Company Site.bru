@@ -1,0 +1,55 @@
+meta {
+  name: 16 Get Transfer By Company Site
+  type: http
+  seq: 16
+}
+
+docs {
+  กรอง get-transfer ด้วย company_codes (transfer.company_code), source_site_codes / dest_site_codes (transfer_item.src_site_code / dest_site_code)
+  exact IN; site = คืน header ถ้ามี item อย่างน้อย 1 รายการตรง; array ว่าง = ไม่กรอง; ทุก filter ใช้ร่วมกันแบบ AND
+  รันหลัง 03 (ใช้ company/site ของ Consol Out จาก outTransfer)
+}
+
+script:pre-request {
+  const out = JSON.parse(bru.getVar("outTransfer"));
+  const item = (out.transfer_item || [])[0] || {};
+  bru.setVar("filterCompany", out.company_code);
+  bru.setVar("filterSrcSite", item.src_site_code);
+  req.setBody({
+    page: 1,
+    page_size: 50,
+    transfer_types: ["TF-CONSOL-OUT"],
+    company_codes: [out.company_code],
+    source_site_codes: [item.src_site_code],
+    dest_site_codes: []
+  });
+}
+
+post {
+  url: {{DOC_URL}}/transfer/get-transfer
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "page": 1,
+    "page_size": 50,
+    "company_codes": [],
+    "source_site_codes": [],
+    "dest_site_codes": []
+  }
+}
+
+tests {
+  test("200 + every row matches company and source site, incl. this flow's", function () {
+    expect(res.status).to.equal(200);
+    const rows = res.body.putaway || [];
+    rows.forEach(tr => {
+      expect(tr.company_code).to.equal(bru.getVar("filterCompany"));
+      const sites = (tr.transfer_item || []).map(it => it.src_site_code);
+      expect(sites).to.include(bru.getVar("filterSrcSite"));
+    });
+    expect(rows.map(r => r.transfer_code)).to.include(bru.getVar("outCode"));
+  });
+}

@@ -1,0 +1,53 @@
+meta {
+  name: 17 Get Transfer Code Like And Dates
+  type: http
+  seq: 17
+}
+
+docs {
+  กรอง get-transfer แบบเดียวกับ filter row หน้า Transfer - Consolidate (เว็บ)
+  transfer_code_like = ILIKE '%x%' บน transfer_code (ช่องว่างล้วน = ไม่กรอง)
+  create_date_start/end กรอง create_dtm, update_date_start/end กรอง update_dtm (ส่งแค่ฝั่งเดียวได้)
+  รันหลัง 03 (ใช้ outCode / outTransfer.create_dtm ของ flow นี้)
+}
+
+script:pre-request {
+  const out = JSON.parse(bru.getVar("outTransfer"));
+  const day = String(out.create_dtm).slice(0, 10);
+  req.setBody({
+    page: 1,
+    page_size: 50,
+    transfer_types: ["TF-CONSOL-OUT", "TF-CONSOL-IN"],
+    transfer_code_like: bru.getVar("outCode").slice(-5).toLowerCase(),
+    create_date_start: `${day}T00:00:00.000Z`,
+    create_date_end: `${day}T23:59:59.000Z`
+  });
+}
+
+post {
+  url: {{DOC_URL}}/transfer/get-transfer
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "page": 1,
+    "page_size": 50,
+    "transfer_code_like": "",
+    "create_date_start": null,
+    "create_date_end": null,
+    "update_date_start": null,
+    "update_date_end": null
+  }
+}
+
+tests {
+  test("200 + every row matches code like, incl. this flow's Consol Out", function () {
+    expect(res.status).to.equal(200);
+    const rows = res.body.putaway || [];
+    const part = bru.getVar("outCode").slice(-5).toLowerCase();
+    rows.forEach(tr => expect(tr.transfer_code.toLowerCase()).to.include(part));
+    expect(rows.map(r => r.transfer_code)).to.include(bru.getVar("outCode"));
+  });
+}
