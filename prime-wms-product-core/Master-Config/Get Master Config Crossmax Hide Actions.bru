@@ -1,0 +1,41 @@
+meta {
+  name: Get Master Config Crossmax Hide Actions
+  type: http
+  seq: 2
+}
+
+docs {
+  ถาม master_config ที่ใช้ซ่อนเมนู/ปุ่ม/ช่องในหน้า list ของ Crossmax (seeds/Crossmax-uat|Crossmax-main/20261027170000_hide_crossmax_list_actions.sql ใน prime-wms-authentication-core)
+  - IB-PLANGR / IB-GR / IB-RT MAIN menu_plan_document: เมนู ⋯ "Plan Document"
+  - IB-GR MAIN btn_create_kitting, print_gr_document: New Receive → Kitting, Print → Goods Receipt Document (หน้า list)
+  - OB-PAK HEADER promotion, prep_date: header ของ Packing Carton/Order Summary
+  - OB-STO MAIN btn_document: ปุ่ม Document + checkbox หน้า STO list
+  Crossmax หลัง insert ทุก row ควรได้ actions: ["HIDE_FIELD"] ส่วน env อื่นควรไม่มี action
+  endpoint อยู่ใน prime-wms-authentication-core (internal/services/master-config/get-master-config.go)
+}
+
+post {
+  url: {{AUTH_URL}}/config/get-master-config
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "datas": [
+      { "module_code": "INBOUND", "topic_code": "PLAN_GOODS_RECEIPT", "item_code": "IB-PLANGR", "section": "MAIN", "field_name": "menu_plan_document" },
+      { "module_code": "INBOUND", "topic_code": "GOODS_RECEIPT", "item_code": "IB-GR", "section": "MAIN", "field_name": "menu_plan_document" },
+      { "module_code": "INBOUND", "topic_code": "GOODS_RECEIPT", "item_code": "IB-GR", "section": "MAIN", "field_name": "btn_create_kitting" },
+      { "module_code": "INBOUND", "topic_code": "GOODS_RECEIPT", "item_code": "IB-GR", "section": "MAIN", "field_name": "print_gr_document" },
+      { "module_code": "INBOUND", "topic_code": "CUSTOMER_RETURN", "item_code": "IB-RT", "section": "MAIN", "field_name": "menu_plan_document" },
+      { "module_code": "OUTBOUND", "topic_code": "PACKING", "item_code": "OB-PAK", "section": "HEADER", "field_name": "promotion" },
+      { "module_code": "OUTBOUND", "topic_code": "PACKING", "item_code": "OB-PAK", "section": "HEADER", "field_name": "prep_date" },
+      { "module_code": "OUTBOUND", "topic_code": "STOCK_TRANSFER_ORDER", "item_code": "OB-STO", "section": "MAIN", "field_name": "btn_document" }
+    ]
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("datas is array", function () { expect(res.body.datas).to.be.an("array"); });
+}
