@@ -1,0 +1,34 @@
+meta {
+  name: List
+  type: http
+  seq: 1
+}
+
+docs {
+  รายการ GR Import (หน้า /gr-import) กรองตาม site ที่เลือกบน header (`dest_site_code`)
+  ทุก filter ไม่บังคับ: from_site_code, dest_site_code, receiving_warehouse_code, status
+  response มี `gr_reference` = dest GR code ของ import นั้น (ว่างถ้า import ล้มเหลวก่อนสร้าง GR)
+}
+
+post {
+  url: {{DOC_URL}}/gr-import/list
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "dest_site_code": "{{siteCode}}"
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("rows match dest site", function () {
+    expect(res.body).to.be.an("array");
+    res.body.forEach(r => {
+      expect(r.dest_site_code).to.equal(bru.getEnvVar("siteCode"));
+      expect(r).to.have.property("gr_reference");
+    });
+  });
+}
