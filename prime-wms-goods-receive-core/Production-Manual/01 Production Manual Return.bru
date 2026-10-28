@@ -1,0 +1,67 @@
+meta {
+  name: 01 Production Manual Return
+  type: http
+  seq: 1
+}
+
+docs {
+  service-to-service: production-core เรียกตอน Return (ปกติไม่ยิงตรง ใช้ debug)
+  inbound + GR + complete ทีเดียว (inbound_type / receive_type IB_PRODUCTION_MANUAL_RETURN) เข้า location ที่ส่งมา ไม่ putaway ไม่สร้าง AP; แยก 1 ใบต่อคลัง
+  location ต้องเป็น type NORMAL ไม่ใช่ production staging และคลังไม่ติด Exclude from pick selection
+  ยิงซ้ำด้วย request_id เดิม = ใช้ใบเดิม ไม่รับของเข้าซ้ำ
+  error prefix: RETURN_REJECTED = ข้อมูลไม่ผ่าน ไม่มีอะไรถูกสร้าง, RETURN_ROLLED_BACK = สร้างแล้วยกเลิกคืน ไม่มีของเข้า; ไม่มี prefix = ไม่ทราบผล
+}
+
+post {
+  url: {{GR_URL}}/production-manual-return
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "request_id": "{{requestId}}",
+    "company_code": "{{companyCode}}",
+    "site_code": "{{siteCode}}",
+    "assembly_code": "{{assemblyCode}}",
+    "items": [{
+      "ref": "{{refId}}",
+      "input_item": "0001",
+      "product_code": "{{productCode}}",
+      "qty": {{qty}},
+      "unit_code": "{{unitCode}}",
+      "batch_no": "{{batchNo}}",
+      "serial_code": "",
+      "mfg_date": null,
+      "exp_date": null,
+      "receive_date": "{{receiveDate}}",
+      "storage_type": "{{storageType}}",
+      "warehouse_code": "{{returnWarehouse}}",
+      "zone_code": "{{returnZone}}",
+      "location_code": "{{returnLocation}}",
+      "pallet_code": "",
+      "carton_code": ""
+    }]
+  }
+}
+
+script:pre-request {
+  const uuid = () => "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === "x" ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+  if (!bru.getVar("requestId")) bru.setVar("requestId", uuid());
+  if (!bru.getVar("refId")) bru.setVar("refId", uuid());
+}
+
+tests {
+  test("success", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.status).to.equal("success");
+    expect(res.body.results[0].receive_code).to.be.a("string");
+  });
+}

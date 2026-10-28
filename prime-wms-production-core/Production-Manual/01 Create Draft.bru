@@ -1,0 +1,70 @@
+meta {
+  name: 01 Create Draft
+  type: http
+  seq: 1
+}
+
+docs {
+  สร้างใบ PRODUCTION_MANUAL แบบ Draft (มี external_id → status TEMP, เลขใบ = external_id) เหมือน SAP ส่งมา
+  ไม่ส่ง external_id = สร้างแบบหน้าเว็บ (PENDING + สร้าง Plan GR ทันที ต้องมี warehouse_code)
+  manual ไม่ใช้ warehouse ราย input (ส่ง "")
+}
+
+post {
+  url: {{PROD_URL}}/production/create-production
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "data": [{
+      "external_id": "{{draftCode}}",
+      "assembly_type": "PRODUCTION_MANUAL",
+      "company_code": "{{companyCode}}",
+      "site_code": "{{siteCode}}",
+      "warehouse_code": "{{warehouseCode}}",
+      "production_staging": "{{productionStaging}}",
+      "estimate_finish_date": null,
+      "remark": null,
+      "outputs": [{
+        "product_code": "{{outputProduct}}",
+        "qty": {{outputQty}},
+        "unit_code": "{{outputUnit}}",
+        "alt_qty": {{outputQty}},
+        "alt_unit": "{{outputUnit}}",
+        "warehouse_code": "{{warehouseCode}}"
+      }],
+      "inputs": [{
+        "product_code": "{{inputProduct}}",
+        "qty": {{inputQty}},
+        "unit_code": "{{inputUnit}}",
+        "alt_qty": {{inputQty}},
+        "alt_unit": "{{inputUnit}}",
+        "waste": 0,
+        "qty_with_waste": {{inputQty}},
+        "warehouse_code": ""
+      }]
+    }]
+  }
+}
+
+script:pre-request {
+  bru.setVar("draftCode", "PDMTEST" + Date.now());
+}
+
+script:post-response {
+  const r = (res.body || [])[0] || {};
+  if (r.code) bru.setVar("assemblyCode", r.code);
+}
+
+tests {
+  test("created", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body[0].success).to.equal(true);
+  });
+}

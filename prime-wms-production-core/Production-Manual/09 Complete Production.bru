@@ -1,0 +1,33 @@
+meta {
+  name: 09 Complete Production
+  type: http
+  seq: 9
+}
+
+docs {
+  ปิดใบ (Submit) — ได้เฉพาะสถานะ PENDING GR / PARTIAL GR และต้องไม่มีแถวค้าง
+  manual ไม่เขียน output confirm ให้ output ที่ไม่เคย GR, ปิด Plan GR, ยิง SAP COMPLETED/COMPLETED
+}
+
+post {
+  url: {{PROD_URL}}/production/complete-production
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "assembly_code": "{{assemblyCode}}"
+  }
+}
+
+tests {
+  test("closed", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.response_code).to.equal("0000");
+  });
+}

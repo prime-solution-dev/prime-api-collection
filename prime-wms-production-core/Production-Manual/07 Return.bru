@@ -1,0 +1,46 @@
+meta {
+  name: 07 Return
+  type: http
+  seq: 7
+}
+
+docs {
+  รับกลับจากบรรทัดที่ GI แล้ว (ref_input_confirm_id = แถว usage จาก 05) เข้า location NORMAL ที่เลือก
+  ทำ inbound + GR + complete ทีเดียว (IB_PRODUCTION_MANUAL_RETURN) ไม่ putaway; 1 คลัง = GR 1 ใบ
+  qty ต้องไม่เกิน Remaining ของบรรทัด และไม่เกิน Actual ของสินค้า
+}
+
+post {
+  url: {{PROD_URL}}/production/manual/return
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "assembly_code": "{{assemblyCode}}",
+    "assembly_item_input_id": "{{inputItemId}}",
+    "lines": [{
+      "ref_input_confirm_id": "{{usageRowId}}",
+      "qty": {{returnQty}},
+      "warehouse_code": "{{returnWarehouse}}",
+      "zone_code": "{{returnZone}}",
+      "location_code": "{{returnLocation}}",
+      "storage_type": "{{srcStorageType}}",
+      "pallet_code": "",
+      "carton_code": ""
+    }]
+  }
+}
+
+tests {
+  test("returned", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.result).to.equal("RETURNED");
+    expect(res.body.receive_codes.length).to.be.above(0);
+  });
+}

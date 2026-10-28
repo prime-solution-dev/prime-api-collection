@@ -1,0 +1,44 @@
+meta {
+  name: 02 Get Return-To Locations
+  type: http
+  seq: 2
+}
+
+docs {
+  รายการ location ให้เลือกใน Return (หน้าเว็บ Production - Manual → Return → Location)
+  filter ใหม่ (ไม่ส่ง = ทำงานเหมือนเดิม): location_type, exclude_pick_selection_excluded, exclude_production_staging, location_code_search / zone_code_search (ILIKE), active_only
+}
+
+post {
+  url: {{GR_URL}}/master/get-location
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "page": 1,
+    "page_size": 20,
+    "site_code": ["{{siteCode}}"],
+    "warehouse_id": ["{{returnWarehouseId}}"],
+    "location_type": ["NORMAL"],
+    "exclude_pick_selection_excluded": true,
+    "exclude_production_staging": true,
+    "active_only": true,
+    "location_code_search": "",
+    "zone_code_search": ""
+  }
+}
+
+tests {
+  test("only NORMAL", function () {
+    expect(res.status).to.equal(200);
+    (res.body.location || []).forEach(l => {
+      expect(String(l.location_type || "").toUpperCase()).to.equal("NORMAL");
+    });
+  });
+}

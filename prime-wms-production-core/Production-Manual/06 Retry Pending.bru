@@ -1,0 +1,30 @@
+meta {
+  name: 06 Retry Pending
+  type: http
+  seq: 6
+}
+
+docs {
+  เคลียร์แถวที่ค้าง (PICK_PENDING / GI_PENDING / RETURN_PENDING) โดยไม่ pick / GI / GR ซ้ำ
+  ไม่มีอะไรค้าง = ตอบกลับสำเร็จเฉยๆ
+}
+
+post {
+  url: {{PROD_URL}}/production/manual/retry-pending
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "assembly_code": "{{assemblyCode}}"
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}

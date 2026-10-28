@@ -1,0 +1,35 @@
+meta {
+  name: 08 Get Input Usage After
+  type: http
+  seq: 8
+}
+
+docs {
+  หลัง 05 + 07: actual_qty = usageQty − returnQty และ return_doc_refs มีเลข GR ของการรับกลับ
+}
+
+post {
+  url: {{PROD_URL}}/production/manual/get-input-usage
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "assembly_code": "{{assemblyCode}}"
+  }
+}
+
+tests {
+  test("actual = usage - return", function () {
+    expect(res.status).to.equal(200);
+    const i = res.body.data.inputs[0];
+    const expected = Number(bru.getEnvVar("usageQty")) - Number(bru.getEnvVar("returnQty"));
+    expect(i.actual_qty).to.be.closeTo(expected, 0.000001);
+    expect((i.return_doc_refs || []).length).to.be.above(0);
+  });
+}

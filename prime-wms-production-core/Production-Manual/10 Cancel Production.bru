@@ -1,0 +1,30 @@
+meta {
+  name: 10 Cancel Production
+  type: http
+  seq: 10
+}
+
+docs {
+  ใช้แทน 09 กับใบที่ยังเป็น Draft / NEW — ยกเลิกไม่ได้ถ้า Actual > 0 (ต้อง Return ก่อน) หรือมี GR แล้ว
+  ยกเลิก Plan GR ที่ยัง PENDING ให้ด้วย
+}
+
+post {
+  url: {{PROD_URL}}/production/cancel-production
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "assembly_code": "{{assemblyCode}}"
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}

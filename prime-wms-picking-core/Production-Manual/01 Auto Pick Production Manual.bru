@@ -1,0 +1,75 @@
+meta {
+  name: 01 Auto Pick Production Manual
+  type: http
+  seq: 1
+}
+
+docs {
+  service-to-service: production-core เรียกตอน New Usage (ปกติไม่ยิงตรง ใช้ debug)
+  สร้าง pick (document_ref_type PRODUCTION_MANUAL) จาก stock line ที่ส่งมา → mode AUTO = complete ทันที ย้ายของไป dest_location_code (production staging); MANUAL = สร้างอย่างเดียว (PENDING)
+  ไม่ใช้ quota, ไม่ pack, ยกเลิก / reverse pick ไม่ได้
+  ยิงซ้ำด้วย ref ชุดเดิม = คืนผลเดิม (idempotent_replay true) ไม่สร้าง pick ใหม่
+  error prefix: PICK_CREATE_FAILED / PICK_CANCELLED = ไม่มีของขยับ, PICK_STUCK = ค้าง ต้อง retry; error ไม่มี prefix = ไม่ทราบผล
+}
+
+post {
+  url: {{PICK_URL}}/picking/auto-pick-production-manual
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "request_id": "{{requestId}}",
+    "mode": "AUTO",
+    "company_code": "{{companyCode}}",
+    "site_code": "{{siteCode}}",
+    "order_id": "{{assemblyId}}",
+    "order_code": "{{assemblyCode}}",
+    "dest_warehouse_code": "",
+    "dest_zone_code": "",
+    "dest_location_code": "{{productionStaging}}",
+    "items": [{
+      "ref": "{{refId}}",
+      "order_item_id": "{{inputItemId}}",
+      "order_item": "{{inputItem}}",
+      "product_code": "{{productCode}}",
+      "warehouse_code": "{{srcWarehouse}}",
+      "zone_code": "{{srcZone}}",
+      "location_code": "{{srcLocation}}",
+      "pallet_code": "",
+      "container_code": "",
+      "qty": {{qty}},
+      "unit_code": "{{unitCode}}",
+      "alt_qty": {{qty}},
+      "alt_unit": "{{unitCode}}",
+      "storage_type": "{{srcStorageType}}",
+      "batch_no": "{{srcBatch}}",
+      "serial_code": "",
+      "mfg_date": null,
+      "exp_date": null,
+      "receive_date": "{{srcReceiveDate}}"
+    }]
+  }
+}
+
+script:pre-request {
+  const uuid = () => "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === "x" ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+  if (!bru.getVar("requestId")) bru.setVar("requestId", uuid());
+  if (!bru.getVar("refId")) bru.setVar("refId", uuid());
+}
+
+tests {
+  test("completed", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.status).to.equal("success");
+    expect(res.body.picking_status).to.equal("COMPLETED");
+  });
+}

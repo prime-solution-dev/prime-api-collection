@@ -1,0 +1,58 @@
+meta {
+  name: 05 New Usage
+  type: http
+  seq: 5
+}
+
+docs {
+  pick อัตโนมัติจาก location NORMAL → complete → ย้ายไป production staging → GI → SAP INPUT/CONFIRM
+  ไม่จอง ไม่ pack จำกัดแค่ Free QTY; 1 บรรทัด = 1 แถว assembly_input_confirm (MANUAL_USAGE)
+  lot (batch / storage_type / mfg / exp / receive_date) ต้องตรงกับแถวสต็อกที่ src ไม่งั้น Free QTY = 0
+  result: ISSUED = ครบ, GI_PENDING / PICK_PENDING = ค้าง ให้ยิง 06 Retry
+}
+
+post {
+  url: {{PROD_URL}}/production/manual/new-usage
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "assembly_code": "{{assemblyCode}}",
+    "mode": "AUTO",
+    "lines": [{
+      "assembly_item_input_id": "{{inputItemId}}",
+      "product_code": "{{inputProduct}}",
+      "warehouse_code": "{{srcWarehouse}}",
+      "zone_code": "{{srcZone}}",
+      "location_code": "{{srcLocation}}",
+      "pallet_code": "",
+      "container_code": "",
+      "batch_no": "{{srcBatch}}",
+      "serial_code": "",
+      "storage_type": "{{srcStorageType}}",
+      "mfg_date": null,
+      "exp_date": null,
+      "receive_date": "{{srcReceiveDate}}",
+      "qty": {{usageQty}},
+      "unit_code": "{{inputUnit}}"
+    }]
+  }
+}
+
+script:post-response {
+  const row = ((res.body || {}).rows || [])[0];
+  if (row) bru.setVar("usageRowId", row.id);
+}
+
+tests {
+  test("issued", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.result).to.equal("ISSUED");
+  });
+}

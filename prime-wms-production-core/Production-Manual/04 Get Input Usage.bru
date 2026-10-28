@@ -1,0 +1,39 @@
+meta {
+  name: 04 Get Input Usage
+  type: http
+  seq: 4
+}
+
+docs {
+  ข้อมูล tab Input Usage: rounds (1 รอบ = GR 1 ใบ), Standard = Σ รอบ, Actual = Issued − Returned, Variance
+  เก็บ assembly_item_input_id ของ input แรกไว้ใช้ใน 05 / 07
+}
+
+post {
+  url: {{PROD_URL}}/production/manual/get-input-usage
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "assembly_code": "{{assemblyCode}}"
+  }
+}
+
+script:post-response {
+  const d = (res.body || {}).data || {};
+  const first = (d.inputs || [])[0];
+  if (first) bru.setVar("inputItemId", first.assembly_item_input_id);
+}
+
+tests {
+  test("200", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.data.assembly_code).to.equal(bru.getVar("assemblyCode"));
+  });
+}
