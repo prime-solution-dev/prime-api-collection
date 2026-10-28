@@ -1,0 +1,43 @@
+meta {
+  name: Print IB-CR (Customer Return PDF)
+  type: http
+  seq: 2
+}
+
+docs {
+  เมนูพิมพ์ใบรับคืนบนหน้า /goods-return/detail/:code (INBOUND/IB-CR)
+  crButtonId เป็น id เดียวกันทั้ง TMI และ Crossmax (seed จาก scripts/migrations/<client>/customer_return_report_button.json)
+  crReceiveId = goods_receive id ของใบรับคืน (เช่น RT2610-0585) ดูจาก payload ตอนกด print บนเว็บ
+  token ไม่เก็บใน repo: รันด้วย --env-var token=<jwt>
+}
+
+post {
+  url: {{DOC_URL}}/module-report-buttons/action
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "id": "{{crButtonId}}",
+    "data": {
+      "company_code": ["{{companyCode}}"],
+      "site_code": ["{{siteCode}}"],
+      "id": ["{{crReceiveId}}"]
+    }
+  }
+}
+
+vars:pre-request {
+  crButtonId: 0d5f63c5-9c5f-4348-b145-1b24295ccac3
+  crReceiveId: 0
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("returns PDF", function () { expect(res.headers["content-type"]).to.contain("application/pdf"); });
+}
