@@ -1,0 +1,37 @@
+meta {
+  name: 01 Login
+  type: http
+  seq: 1
+}
+
+docs {
+  login WMS → เก็บ token เป็น runtime var (ทับ env `token`) ให้ request ที่รันต่อใน run เดียวกัน
+  production-core อ่าน user จาก JWT (get-production-detail, new-usage, complete ฯลฯ) — ไม่มี token = "failed to get user from context"
+  `loginUser` / `loginPassword` ไม่ commit — ส่งทาง `--env-var`
+}
+
+post {
+  url: {{AUTH_URL}}/authen/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "user_code": "{{loginUser}}",
+    "password": "{{loginPassword}}"
+  }
+}
+
+script:post-response {
+  if (res.body && res.body.token) {
+    bru.setVar("token", res.body.token);
+  }
+}
+
+tests {
+  test("logged in", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.token).to.be.a("string").and.not.empty;
+  });
+}

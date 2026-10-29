@@ -19,13 +19,15 @@ submit → new-usage 1 → GR ปกติ FG 4000 → new-usage 2 (SAP ล้�
 
 ## รัน
 
-`token` ไม่ commit — ส่งทาง `--env-var token=...` ทุกครั้ง (หรือใส่ใน Bruno app)
+`token` ไม่ commit. production-core อ่าน user จาก JWT — ไม่มี token บาง request ได้ 500 `failed to get user from context`
+- `./Production-Manual-SAP-E2E/login.sh` (ถาม user_code / password แบบไม่แสดง) → เก็บ token ที่ `~/.crossmax-main-token`, หรือ
+- ใส่ `0-login` นำหน้าใน run เดียวกัน (`--env-var loginUser=... --env-var loginPassword=...`) — token อยู่แค่ใน run นั้น
 ค่าเดียวที่ข้าม subfolder คือ `assemblyCode` (`02` ใช้ `bru.setEnvVar(..., { persist: true })` — Bruno app เขียนลง env ให้, **CLI 2.15 ไม่เขียนไฟล์** → อ่านเลขจากชื่อ test ของ `02` แล้ว export เอง). ห้าม commit `assemblyCode`
 ค่าอื่นหาใหม่ทุก subfolder: รอบ usage แยกด้วยสินค้า (รอบ 1 = `u1Product`, รอบ 2 = `u2Product` **ต้องคนละตัว**), output แยกด้วย qty (`gr1Qty` / `gr2Qty` ต้องไม่เท่ากัน)
 
 ```bash
 cd prime-wms-production-core
-run() { npx @usebruno/cli@2 run "Production-Manual-SAP-E2E/$1" --env Crossmax-Main --env-var token="$TOKEN" --env-var assemblyCode="$ASSEMBLY" --bail; }
+run() { npx @usebruno/cli@2 run "Production-Manual-SAP-E2E/$1" --env Crossmax-Main --env-var token="$(cat ~/.crossmax-main-token)" --env-var assemblyCode="$ASSEMBLY" --bail; }
 
 run 1-setup/a-create-and-usage-1
 export ASSEMBLY=...   # จาก test "assembly created: assemblyCode = ..." ของ 02
