@@ -1,0 +1,32 @@
+meta {
+  name: 04 Complete Production
+  type: http
+  seq: 4
+}
+
+docs {
+  ปิดใบ → hook PRODUCTION/COMPLETED/COMPLETED — หลัง seed v2 ไม่มีแถว hook = ไม่เกิดเอกสาร SAP
+}
+
+post {
+  url: {{PROD_URL}}/production/complete-production
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "assembly_code": "{{assemblyCode}}"
+  }
+}
+
+tests {
+  test("closed", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.response_code).to.equal("0000");
+  });
+}

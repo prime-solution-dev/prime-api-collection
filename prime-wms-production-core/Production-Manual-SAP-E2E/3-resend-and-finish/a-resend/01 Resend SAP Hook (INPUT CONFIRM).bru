@@ -1,0 +1,33 @@
+meta {
+  name: 01 Resend SAP Hook (INPUT CONFIRM)
+  type: http
+  seq: 1
+}
+
+docs {
+  รันหลังเติมสต็อก u2Product ฝั่ง SAP แล้วเท่านั้น
+  ยิง hook PRODUCTION/INPUT/CONFIRM ซ้ำ → IFP #2 เฉพาะแถวรอบ 2 (delta gate qty_gi - qty_interface > 0)
+  รับเฉพาะ INPUT/CONFIRM, BACKFLUSH/CREATE, RETURN/CONFIRM (อื่น = 400)
+}
+
+post {
+  url: {{PROD_URL}}/production/resend-sap-hook
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "assembly_code": "{{assemblyCode}}",
+    "event": "INPUT",
+    "action": "CONFIRM"
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}

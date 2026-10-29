@@ -1,0 +1,52 @@
+meta {
+  name: 01 Assert GR 1 (RFP + GRPO 1)
+  type: http
+  seq: 1
+}
+
+docs {
+  รันหลัง GR ผลผลิตปกติรอบ 1 (FG gr1Qty) ผ่านหน้าเว็บ — hook PRODUCTION/BACKFLUSH/CREATE → RFP #1 + GRPO-Production #1
+  output confirm มี 1 แถว qty = gr1Qty (หน่วย WMS), is_send_interface = true (RFP), is_send_grpo = true (GRPO)
+}
+
+post {
+  url: {{PROD_URL}}/production/get-production-detail
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "production_code": "{{assemblyCode}}"
+  }
+}
+
+tests {
+  const items = res.body.data.items || [];
+  const inConf = items.flatMap(i => (i.input_items || []).flatMap(x => x.confirms || []));
+  const outConf = items.flatMap(i => (i.output_items || []).flatMap(x => x.confirms || []));
+  // รอบ usage แยกด้วยสินค้า: รอบ 1 = u1Product, รอบ 2 = u2Product
+  const usage = k => inConf.filter(x => x.document_ref_type === "MANUAL_USAGE" && x.product_code === bru.getEnvVar(k + "Product"));
+  const outOf = k => outConf.filter(o => Math.abs(o.qty - Number(bru.getEnvVar(k))) < 0.000001);
+  const sent = c => {
+    expect(c.is_send_interface, c.id).to.equal(true);
+    expect(c.qty_gi, c.id).to.be.above(0);
+    expect(c.qty_interface, c.id).to.be.closeTo(c.qty_gi, 0.000001);
+  };
+
+  test("one output confirm = GR round 1, RFP + GRPO sent", function () {
+    expect(res.status).to.equal(200);
+    expect(outConf.length).to.equal(1);
+    expect(outOf("gr1Qty").length).to.equal(1);
+    expect(outConf[0].is_send_interface).to.equal(true);
+    expect(outConf[0].is_send_grpo).to.equal(true);
+  });
+
+  test("round 1 usage rows unchanged", function () {
+    usage("u1").forEach(sent);
+  });
+}

@@ -1,0 +1,42 @@
+meta {
+  name: 05 Assert Final
+  type: http
+  seq: 5
+}
+
+docs {
+  complete ไม่เปลี่ยนสถานะส่ง SAP ของแถวใด (เทียบ snapshot จาก 03) — นับเอกสาร SAP ต่อด้วย checklist ใน README
+}
+
+post {
+  url: {{PROD_URL}}/production/get-production-detail
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "production_code": "{{assemblyCode}}"
+  }
+}
+
+tests {
+  const items = res.body.data.items || [];
+  const all = items.flatMap(i => [].concat(
+    (i.input_items || []).flatMap(x => x.confirms || []),
+    (i.output_items || []).flatMap(x => x.confirms || [])));
+
+  test("SAP flags unchanged by complete", function () {
+    expect(res.status).to.equal(200);
+    const now = all.map(c => [c.id, c.is_send_interface, c.qty_interface, c.is_send_grpo]);
+    expect(JSON.stringify(now)).to.equal(bru.getVar("snapshotBeforeComplete"));
+  });
+
+  test("every row sent", function () {
+    all.forEach(c => expect(c.is_send_interface, c.id).to.equal(true));
+  });
+}

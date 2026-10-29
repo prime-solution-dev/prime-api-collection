@@ -1,0 +1,45 @@
+meta {
+  name: 01 Get Input Usage
+  type: http
+  seq: 1
+}
+
+docs {
+  หา assembly_item_input_id + unit_code ของ u1Product / u2Product ให้ new-usage ใช้
+}
+
+post {
+  url: {{PROD_URL}}/production/manual/get-input-usage
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "assembly_code": "{{assemblyCode}}"
+  }
+}
+
+script:post-response {
+  const inputs = (((res.body || {}).data || {}).inputs) || [];
+  for (const k of ["u1", "u2"]) {
+    const i = inputs.find(x => x.product_code === bru.getEnvVar(k + "Product"));
+    if (i) {
+      bru.setVar(k + "InputId", i.assembly_item_input_id);
+      bru.setVar(k + "Unit", i.unit_code);
+    }
+  }
+}
+
+tests {
+  test("u1 / u2 products are inputs of this order", function () {
+    expect(res.status).to.equal(200);
+    const codes = res.body.data.inputs.map(x => x.product_code);
+    expect(codes).to.include(bru.getEnvVar("u1Product"));
+    expect(codes).to.include(bru.getEnvVar("u2Product"));
+  });
+}

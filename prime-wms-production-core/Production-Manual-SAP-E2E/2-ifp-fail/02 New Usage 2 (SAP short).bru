@@ -1,0 +1,51 @@
+meta {
+  name: 02 New Usage 2 (SAP short)
+  type: http
+  seq: 2
+}
+
+docs {
+  รอบ 2: u2Product ที่ WMS มีสต็อก แต่ SAP สต็อกไม่พอ (เตรียมไว้ก่อน — ดู README)
+  WMS pick + GI ผ่าน (result ISSUED) แต่ IFP #2 ได้ IsSuccess:false → crossmax release แถวคืน
+}
+
+post {
+  url: {{PROD_URL}}/production/manual/new-usage
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "assembly_code": "{{assemblyCode}}",
+    "mode": "AUTO",
+    "lines": [{
+      "assembly_item_input_id": "{{u2InputId}}",
+      "product_code": "{{u2Product}}",
+      "warehouse_code": "{{u2Warehouse}}",
+      "zone_code": "{{u2Zone}}",
+      "location_code": "{{u2Location}}",
+      "pallet_code": "",
+      "container_code": "",
+      "batch_no": "{{u2Batch}}",
+      "serial_code": "",
+      "storage_type": "{{u2StorageType}}",
+      "mfg_date": {{u2MfgDate}},
+      "exp_date": {{u2ExpDate}},
+      "receive_date": {{u2ReceiveDate}},
+      "qty": {{u2Qty}},
+      "unit_code": "{{u2Unit}}"
+    }]
+  }
+}
+
+tests {
+  test("issued in WMS", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.result).to.equal("ISSUED");
+  });
+}
