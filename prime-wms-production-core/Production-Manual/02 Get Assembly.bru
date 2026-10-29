@@ -34,6 +34,8 @@ script:post-response {
     bru.setVar("assemblyId", a.assembly_id);
     const inputs = ((a.items || [])[0] || {}).inputs || [];
     bru.setVar("inputIds", JSON.stringify(inputs.map(i => ({ id: i.id, warehouse_code: "" }))));
+    const output = (((a.items || [])[0] || {}).outputs || [])[0];
+    if (output) bru.setVar("outputItem", output.output_item);
   }
 }
 

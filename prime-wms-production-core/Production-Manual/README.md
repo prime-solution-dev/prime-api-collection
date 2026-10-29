@@ -20,5 +20,11 @@ npx @usebruno/cli@2 run Production-Manual --env Dev --bail
 - `03` Submit สร้าง Plan GR (`IB_PRODUCTION_MANUAL`, document_ref = เลขใบ) — GR ผลผลิตทำผ่านหน้าเว็บ GR list → "Create Production - Manual" (รับเกินได้, putaway แบบ production, ไม่ตัดวัตถุดิบ)
 - `05` / `07` ตอบ 200 พร้อม `result` PICK_PENDING / GI_PENDING / RETURN_PENDING ได้ถ้า service ปลายทางไม่ตอบ → ยิง `06` Retry (ไม่ pick / GI / GR ซ้ำ)
 - `09` ปิดใบได้เมื่อมีการใช้ของหรือ GR แล้ว (PENDING GR / PARTIAL GR) และไม่มีแถวค้าง
-- `10` ยกเลิกได้เมื่อ Actual = 0 และยังไม่มี GR
+- `10` ยกเลิกได้เมื่อ Actual = 0 และยังไม่มี GR / ใบ GR (get-input-usage ส่ง `can_cancel` + `cancel_block_reason`)
+
+## เส้นที่ใช้ดูการส่ง SAP
+- **confirm input** = `05 New Usage` (บันทึก input confirm 1 แถวต่อบรรทัด → GI → hook `PRODUCTION/INPUT/CONFIRM` → IFP) — เส้นเดิม `/production/create-input-production` เป็น callback ของ pick production ปกติ ใช้กับ manual ไม่ได้ (reject)
+- **confirm output** = `11 Create Confirm Output (simulate GR)` (บันทึก output confirm → hook `PRODUCTION/BACKFLUSH/CREATE` → RFP) ปกติเกิดเองตอน GR ผ่านหน้าเว็บ
+- `12 Get Production Detail (SAP payload)` = ข้อมูลที่ crossmax ดึงไปสร้าง IFP / RFP
+- ปิดใบ `09` ยิง `PRODUCTION/COMPLETED/COMPLETED` (IFP + RFP เฉพาะยอดที่ค้าง)
 - endpoint ที่ production-core เรียกต่อ: picking-core `auto-pick-production-manual`, goods-receive-core `production-manual-return` (ดู collection ของแต่ละ core)

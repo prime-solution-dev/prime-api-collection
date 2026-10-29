@@ -1,0 +1,55 @@
+meta {
+  name: 11 Create Confirm Output (simulate GR)
+  type: http
+  seq: 11
+}
+
+docs {
+  confirm output = สิ่งที่เกิดตอน GR ผลผลิต (ปกติ GR-core ยิง gr-backflush-hook ให้เอง) ใช้เทสการส่ง SAP โดยไม่ต้อง GR ผ่านหน้าเว็บ
+  manual: บันทึก assembly_output_confirm 1 แถว (ไม่ backflush ไม่ GI) แล้วยิง SAP PRODUCTION/BACKFLUSH/CREATE → crossmax ReceiptfromProduction (RFP)
+  ⚠️ ไม่มี stock เข้าจริง (ไม่ได้ผ่าน GR) — ใช้กับข้อมูลทดสอบเท่านั้น
+  doc_ref + doc_ref_item ซ้ำ = ไม่บันทึกซ้ำ (เปลี่ยน grCode เพื่อจำลอง GR รอบใหม่)
+  ใบต้องเป็นสถานะ New / Pending GR / Partial GR (base PENDING)
+}
+
+post {
+  url: {{PROD_URL}}/production/create-confirm-output-backflush
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  [{
+    "assembly_code": "{{assemblyCode}}",
+    "assembly_output_item": "{{outputItem}}",
+    "product_code": "{{outputProduct}}",
+    "qty": {{outputQty}},
+    "unit_code": "{{outputUnit}}",
+    "alt_qty": {{outputQty}},
+    "alt_unit": "{{outputUnit}}",
+    "batch_no": "",
+    "serial_code": "",
+    "pallet_code": "",
+    "container_code": "",
+    "location_code": "",
+    "warehouse_code": "{{warehouseCode}}",
+    "storage_type": "NORMAL",
+    "mfg_date": null,
+    "exp_date": null,
+    "receive_date": null,
+    "doc_ref": "{{grCode}}",
+    "doc_ref_item": "001"
+  }]
+}
+
+script:pre-request {
+  if (!bru.getVar("grCode")) bru.setVar("grCode", "GRTEST" + Date.now());
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}

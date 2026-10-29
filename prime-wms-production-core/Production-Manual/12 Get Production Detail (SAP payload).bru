@@ -1,0 +1,32 @@
+meta {
+  name: 12 Get Production Detail (SAP payload)
+  type: http
+  seq: 12
+}
+
+docs {
+  ข้อมูลที่ crossmax ดึงไปสร้างเอกสาร SAP ทุกครั้งที่มี hook PRODUCTION/*
+  - IFP (IssueforProduction): ส่ง input confirm ที่ qty_gi − qty_interface > 0 (แถว MANUAL_USAGE หลัง GI; แถว MANUAL_RETURN qty_gi = 0 จึงไม่ถูกส่ง) — manual รายงาน input_status = COMPLETED ทุก item
+  - RFP (ReceiptfromProduction): ส่ง output confirm ที่ output status COMPLETED และยังไม่ is_send_interface
+  - manual มี field เพิ่ม: assembly_type, document_ref_type (MANUAL_USAGE / MANUAL_RETURN), document_ref, ref_input_confirm_id, manual_status, gi_code
+}
+
+post {
+  url: {{PROD_URL}}/production/get-production-detail
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "production_code": "{{assemblyCode}}"
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}
