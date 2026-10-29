@@ -7,6 +7,7 @@ meta {
 docs {
   บันทึกการหยิบของ Consol Out ผ่าน update-transfer (status ต้องไม่ใช่ COMPLETED)
   body สร้างจาก Consol Out ที่ได้จาก 03 + เติม transfer_confirm ปลายทาง = Consol Location เต็มจำนวน
+  backend จองสต็อกด้วย transfer_item.storage_type ของแต่ละ item (ว่าง = NORMAL) — สต็อก RETURN ต้องส่ง storage_type: RETURN
 }
 
 post {

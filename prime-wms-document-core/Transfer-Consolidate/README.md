@@ -24,6 +24,7 @@ npx @usebruno/cli@2 run "Transfer-Consolidate/00 Check Stock.bru" "Transfer-Cons
 
 - `00` เก็บ baseline → `05a` / `10a` เทียบส่วนต่าง (src −qty, Consol +qty/จอง +qty, แล้ว Consol กลับ baseline + dest +qty)
 - env ต้องมี `receiveDate` / `storageType` ตรงกับแถวสต็อกที่ src (ดูจาก collection `prime-wms-warehouse-core` → Find Stock In Warehouse) ไม่งั้น complete จะ error `not found inventory`
+- เคสสต็อก `RETURN`: ตั้ง env `storageType: RETURN` + `srcLocation`/`receiveDate` ของสต็อก RETURN แล้วรัน flow เดิม — `04` (update-transfer) ต้องจองผ่าน (เดิม backend ส่ง `NORMAL` ตายตัวจึง error `not found inventory`, แก้ 2026-10-29)
 
 ## หมายเหตุ
 - `17` ใช้ `transfer_code_like` (ILIKE) + `create_date_start/end` (มี `update_date_start/end` ด้วย) แบบ filter row หน้าเว็บ (รันหลัง 03)
