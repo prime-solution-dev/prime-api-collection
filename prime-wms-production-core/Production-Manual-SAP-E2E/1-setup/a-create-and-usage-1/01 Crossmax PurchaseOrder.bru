@@ -1,0 +1,28 @@
+meta {
+  name: 01 Crossmax PurchaseOrder
+  type: http
+  seq: 1
+}
+
+docs {
+  PO ค่าผลิต (SAP DocNum 1026100017, OMHPTS03-0340 ราคา 5/Unit) → order WMS (external_id = DocNum)
+  ⚠️ crossmax ไม่กันยิงซ้ำ — ยิงซ้ำ = order ใหม่ ถ้ามี PO นี้บน Crossmax-main แล้วให้ข้าม (เช่นรันซ้ำ)
+  ต้องมี OMHPTS03-0340 เป็น group_value ของ PG06 ไม่งั้นไม่ถือเป็น PO ค่าผลิต
+}
+
+post {
+  url: {{CROSSMAX_URL}}/Api/Transaction/PurchaseOrder
+  body: json
+  auth: none
+}
+
+body:json {
+  {"DocEntry":{{sapPoDocEntry}},"DocNum":{{sapPoDocNum}},"PostingDate":"2026-10-28","DueDate":"2026-10-28","DocumentDate":"2026-10-28","CardCode":"VER0088","CardName":"Miss Nuttakrita  Anodas","ShipAddressName":"17/11 Soi Nawamin 111 BuengKum,\rBANGKOK\r10240","BillToAddressName":"","NumAtCard":"","DocumentTotal":"53500.000000","Comments":"","LineItems":[{"LineNum":0,"ItemCode":"OMHPTS03-0340","Description":"ค่าผลิต Hooray! Protein Shake Lactose Free Strawberry 340 ML","Quantity":10000.0,"UnitPrice":"5.000000","LineTotal":"50000.000000","UomEntry":4,"UomCode":"Unit","WhsCode":"WH-DS","NumPerMsr":1.0,"InvQty":10000.0}]}
+}
+
+tests {
+  test("PO created", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.IsError).to.equal(false);
+  });
+}

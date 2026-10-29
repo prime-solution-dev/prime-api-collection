@@ -1,0 +1,45 @@
+meta {
+  name: 02 Return 1 line
+  type: http
+  seq: 2
+}
+
+docs {
+  รับกลับ returnQty จากแถว usage รอบ 1 (u1InputId / usage1RowId มาจาก 01) → hook PRODUCTION/RETURN/CONFIRM → ReceiptfromProductionReturn 1 ใบ
+  returnLocation ต้องเป็น location NORMAL (ไม่ใช่ production staging)
+}
+
+post {
+  url: {{PROD_URL}}/production/manual/return
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "assembly_code": "{{assemblyCode}}",
+    "assembly_item_input_id": "{{u1InputId}}",
+    "lines": [{
+      "ref_input_confirm_id": "{{usage1RowId}}",
+      "qty": {{returnQty}},
+      "warehouse_code": "{{returnWarehouse}}",
+      "zone_code": "{{returnZone}}",
+      "location_code": "{{returnLocation}}",
+      "storage_type": "{{u1StorageType}}",
+      "pallet_code": "",
+      "carton_code": ""
+    }]
+  }
+}
+
+tests {
+  test("returned", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.result).to.equal("RETURNED");
+    expect(res.body.receive_codes.length).to.be.above(0);
+  });
+}

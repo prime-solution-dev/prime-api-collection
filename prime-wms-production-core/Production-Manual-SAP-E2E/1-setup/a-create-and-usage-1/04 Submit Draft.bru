@@ -1,0 +1,35 @@
+meta {
+  name: 04 Submit Draft
+  type: http
+  seq: 4
+}
+
+docs {
+  TEMP → PENDING + สร้าง Plan GR (IB_PRODUCTION_MANUAL) ให้ GR ผลผลิตรอบ 1 / gr-import รอบ 2 ผูก
+}
+
+post {
+  url: {{PROD_URL}}/production/submit-production
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "assembly_id": "{{assemblyId}}",
+    "warehouse_code": "{{warehouseCode}}",
+    "production_staging": "{{productionStaging}}",
+    "inputs": {{inputIds}}
+  }
+}
+
+tests {
+  test("submitted", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.status).to.equal("success");
+  });
+}

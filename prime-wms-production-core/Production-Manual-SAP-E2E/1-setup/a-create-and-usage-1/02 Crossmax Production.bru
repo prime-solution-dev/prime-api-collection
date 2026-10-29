@@ -1,0 +1,33 @@
+meta {
+  name: 02 Crossmax Production
+  type: http
+  seq: 2
+}
+
+docs {
+  SAP Production Order DocEntry 290 → ใบ assembly PRODUCTION_MANUAL (TEMP) ที่มี external_id = DocEntry, external_id_2 = DocNum, external_id_3 = U_CMR_PO
+  ห้ามใช้ Production-Manual/01 Create Draft แทน — ไม่เขียน external_id / external_id_3 → IFP / RFP / GRPO skip ทั้งใบ
+  เก็บ CMR_WMSRefDoc เป็น assemblyCode ลง env (persist ใน Bruno app; CLI ไม่เขียนไฟล์ → subfolder ถัดไปส่ง --env-var assemblyCode=... เอง)
+}
+
+post {
+  url: {{CROSSMAX_URL}}/Api/Transaction/Production
+  body: json
+  auth: none
+}
+
+body:json {
+  {"DocEntry":{{sapPdoDocEntry}},"DocNum":{{sapPdoDocNum}},"OrderDate":"2026-10-28","StartDate":"2026-10-28","DueDate":"2026-10-28","Type":"S","Status":"R","ProductNo":"FGHPTS03-010340DRT01","ProductDescription":"Hooray! Protein Shake Lactose Free Strawberry 340 ML","PlannedQuantity":10000.0,"WhsCode":"{{warehouseCode}}","Comments":"","U_CMR_PO":"{{sapPoDocNum}}","U_CMR_BEF":null,"LineItems":[{"LineNum":0,"Type":0,"ItemCode":"RMMP-MPC01","Description":"MPC70","BaseQty":40.32,"PlannedQuantity":403200.0,"UomEntry":2,"UomCode":"Gram"},{"LineNum":1,"Type":0,"ItemCode":"RMMP-PSM01","Description":"Partly Skimmed Milk","BaseQty":7.4,"PlannedQuantity":74000.0,"UomEntry":2,"UomCode":"Gram"},{"LineNum":2,"Type":0,"ItemCode":"RMMP-WMP01","Description":"WMP","BaseQty":12.765,"PlannedQuantity":127650.0,"UomEntry":2,"UomCode":"Gram"},{"LineNum":3,"Type":0,"ItemCode":"RMFL-HKD01","Description":"Hokkaido Milk Flavour -60FM97712","BaseQty":0.6919,"PlannedQuantity":6919.0,"UomEntry":2,"UomCode":"Gram"},{"LineNum":4,"Type":0,"ItemCode":"RMFL-VLF01","Description":"Vanilla flavor Type","BaseQty":0.37,"PlannedQuantity":3700.0,"UomEntry":2,"UomCode":"Gram"},{"LineNum":5,"Type":0,"ItemCode":"RMFL-STF01","Description":"Strawberry Flavor -TF00570","BaseQty":1.036,"PlannedQuantity":10360.0,"UomEntry":2,"UomCode":"Gram"},{"LineNum":6,"Type":0,"ItemCode":"RMST-ERT01","Description":"Erythritol","BaseQty":0.069267,"PlannedQuantity":692.67037,"UomEntry":2,"UomCode":"Gram"},{"LineNum":7,"Type":0,"ItemCode":"RMST-SWE01","Description":"Sweet mix","BaseQty":6.46612,"PlannedQuantity":64661.2,"UomEntry":2,"UomCode":"Gram"},{"LineNum":8,"Type":0,"ItemCode":"RMST-SUC01","Description":"Sucralose","BaseQty":0.005402,"PlannedQuantity":54.018519,"UomEntry":2,"UomCode":"Gram"},{"LineNum":9,"Type":0,"ItemCode":"RMST-ACF01","Description":"Acesulfame K","BaseQty":0.000666,"PlannedQuantity":6.659259,"UomEntry":2,"UomCode":"Gram"},{"LineNum":10,"Type":0,"ItemCode":"RMCL-CMS01","Description":"Carmoisine","BaseQty":0.00555,"PlannedQuantity":55.5,"UomEntry":2,"UomCode":"Gram"},{"LineNum":11,"Type":0,"ItemCode":"RMEZ-MAX01","Description":"MAXILACT LGI 5000","BaseQty":0.444,"PlannedQuantity":4440.0,"UomEntry":2,"UomCode":"Gram"},{"LineNum":12,"Type":0,"ItemCode":"PMBT-PTS05-001","Description":"Bottle PS Strawberry 340 ml. มี Ring -DRT รวมฟิล์ม","BaseQty":1.0,"PlannedQuantity":10000.0,"UomEntry":4,"UomCode":"Unit"},{"LineNum":13,"Type":0,"ItemCode":"PMCP-NON00-001","Description":"Cap HDPE PS White 340ml.","BaseQty":1.0,"PlannedQuantity":10000.0,"UomEntry":4,"UomCode":"Unit"}]}
+}
+
+script:post-response {
+  if (res.body && res.body.CMR_WMSRefDoc) bru.setEnvVar("assemblyCode", res.body.CMR_WMSRefDoc, { persist: true });
+}
+
+tests {
+  test("assembly created: assemblyCode = " + (res.body || {}).CMR_WMSRefDoc, function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.IsError).to.equal(false);
+    expect(res.body.CMR_WMSRefDoc).to.be.a("string").and.not.empty;
+  });
+}

@@ -1,0 +1,50 @@
+meta {
+  name: 02 Assert IFP 2 sent
+  type: http
+  seq: 2
+}
+
+docs {
+  แถวรอบ 2 ส่งแล้ว (qty_interface = qty_gi) และแถวรอบ 1 qty_interface ไม่เพิ่ม (IFP #2 ไม่รวมยอดรอบ 1)
+}
+
+post {
+  url: {{PROD_URL}}/production/get-production-detail
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "production_code": "{{assemblyCode}}"
+  }
+}
+
+tests {
+  const items = res.body.data.items || [];
+  const inConf = items.flatMap(i => (i.input_items || []).flatMap(x => x.confirms || []));
+  const outConf = items.flatMap(i => (i.output_items || []).flatMap(x => x.confirms || []));
+  // รอบ usage แยกด้วยสินค้า: รอบ 1 = u1Product, รอบ 2 = u2Product
+  const usage = k => inConf.filter(x => x.document_ref_type === "MANUAL_USAGE" && x.product_code === bru.getEnvVar(k + "Product"));
+  const outOf = k => outConf.filter(o => Math.abs(o.qty - Number(bru.getEnvVar(k))) < 0.000001);
+  const sent = c => {
+    expect(c.is_send_interface, c.id).to.equal(true);
+    expect(c.qty_gi, c.id).to.be.above(0);
+    expect(c.qty_interface, c.id).to.be.closeTo(c.qty_gi, 0.000001);
+  };
+
+  test("round 2 usage rows sent (IFP #2)", function () {
+    expect(res.status).to.equal(200);
+    expect(usage("u2").length).to.be.above(0);
+    usage("u2").forEach(sent);
+  });
+
+  test("round 1 not re-sent", function () {
+    usage("u1").forEach(sent);
+    expect(outConf.length).to.equal(1);
+  });
+}

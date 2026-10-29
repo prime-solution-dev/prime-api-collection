@@ -1,0 +1,36 @@
+meta {
+  name: 05 Get Production Detail (SAP keys)
+  type: http
+  seq: 5
+}
+
+docs {
+  ใบต้องมี key ที่ crossmax ใช้ join SAP ไม่งั้น IFP / RFP / GRPO skip ทั้งใบ
+  external_id = DocEntry ของ PdO (BaseEntry), external_id_3 = U_CMR_PO = DocNum ของ PO ค่าผลิต
+}
+
+post {
+  url: {{PROD_URL}}/production/get-production-detail
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "production_code": "{{assemblyCode}}"
+  }
+}
+
+tests {
+  test("SAP keys present", function () {
+    expect(res.status).to.equal(200);
+    const d = res.body.data;
+    expect(d.assembly_type).to.equal("PRODUCTION_MANUAL");
+    expect(d.external_id).to.equal(String(bru.getEnvVar("sapPdoDocEntry")));
+    expect(d.external_id_3).to.equal(String(bru.getEnvVar("sapPoDocNum")));
+  });
+}

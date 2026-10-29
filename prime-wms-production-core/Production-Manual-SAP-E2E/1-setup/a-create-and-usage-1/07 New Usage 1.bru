@@ -1,0 +1,51 @@
+meta {
+  name: 07 New Usage 1
+  type: http
+  seq: 7
+}
+
+docs {
+  รอบ 1: pick + GI u1Product → hook PRODUCTION/INPUT/CONFIRM → IFP #1 (ยอดรอบนี้)
+  lot (batch / storage_type / mfg / exp / receive_date) ต้องตรงแถวสต็อกที่ u1Location ไม่งั้น Free QTY = 0
+}
+
+post {
+  url: {{PROD_URL}}/production/manual/new-usage
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "assembly_code": "{{assemblyCode}}",
+    "mode": "AUTO",
+    "lines": [{
+      "assembly_item_input_id": "{{u1InputId}}",
+      "product_code": "{{u1Product}}",
+      "warehouse_code": "{{u1Warehouse}}",
+      "zone_code": "{{u1Zone}}",
+      "location_code": "{{u1Location}}",
+      "pallet_code": "",
+      "container_code": "",
+      "batch_no": "{{u1Batch}}",
+      "serial_code": "",
+      "storage_type": "{{u1StorageType}}",
+      "mfg_date": {{u1MfgDate}},
+      "exp_date": {{u1ExpDate}},
+      "receive_date": {{u1ReceiveDate}},
+      "qty": {{u1Qty}},
+      "unit_code": "{{u1Unit}}"
+    }]
+  }
+}
+
+tests {
+  test("issued", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.result).to.equal("ISSUED");
+  });
+}
