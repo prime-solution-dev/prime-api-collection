@@ -19,7 +19,8 @@ npx @usebruno/cli@2 run Production-Manual --env Dev --bail
 - `01` ส่ง external_id → Draft (TEMP) แบบ SAP; ไม่ส่ง external_id = สร้างแบบหน้าเว็บ (PENDING + Plan GR ทันที)
 - `03` Submit สร้าง Plan GR (`IB_PRODUCTION_MANUAL`, document_ref = เลขใบ) — GR ผลผลิตทำผ่านหน้าเว็บ GR list → "Create Production - Manual" (รับเกินได้, putaway แบบ production, ไม่ตัดวัตถุดิบ)
 - `05` / `07` ตอบ 200 พร้อม `result` PICK_PENDING / GI_PENDING / RETURN_PENDING ได้ถ้า service ปลายทางไม่ตอบ → ยิง `06` Retry (ไม่ pick / GI / GR ซ้ำ)
-- `09` ปิดใบได้เมื่อมีการใช้ของหรือ GR แล้ว (PENDING GR / PARTIAL GR) และไม่มีแถวค้าง
+- `09` ปิดใบได้เมื่อมีการใช้ของหรือ GR แล้ว (NEW ที่เบิกแล้ว / PARTIAL GR / GR COMPLETED) และไม่มีแถวค้าง
+- status (derive): Draft → New → Partial GR → GR Completed → Completed (ไม่มี Pending Pick / Pending GR)
 - `10` ยกเลิกได้เมื่อ Actual = 0 และยังไม่มี GR / ใบ GR (get-input-usage ส่ง `can_cancel` + `cancel_block_reason`)
 
 ## เส้นที่ใช้ดูการส่ง SAP

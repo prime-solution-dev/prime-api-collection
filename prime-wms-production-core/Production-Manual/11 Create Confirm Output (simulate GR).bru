@@ -9,7 +9,7 @@ docs {
   manual: บันทึก assembly_output_confirm 1 แถว (ไม่ backflush ไม่ GI) แล้วยิง SAP PRODUCTION/BACKFLUSH/CREATE → crossmax ReceiptfromProduction (RFP)
   ⚠️ ไม่มี stock เข้าจริง (ไม่ได้ผ่าน GR) — ใช้กับข้อมูลทดสอบเท่านั้น
   doc_ref + doc_ref_item ซ้ำ = ไม่บันทึกซ้ำ (เปลี่ยน grCode เพื่อจำลอง GR รอบใหม่)
-  ใบต้องเป็นสถานะ New / Pending GR / Partial GR (base PENDING)
+  ใบต้องเป็นสถานะ New / Partial GR / GR Completed (base PENDING)
 }
 
 post {
