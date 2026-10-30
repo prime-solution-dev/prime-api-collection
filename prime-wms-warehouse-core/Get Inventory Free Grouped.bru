@@ -1,0 +1,58 @@
+meta {
+  name: Get Inventory Free Grouped
+  type: http
+  seq: 3
+}
+
+docs {
+  stock ที่ว่างจริงของสินค้าเดียวใน site (QTY Free = qty − ยอดจอง PENDING / On Transaction) รวมข้าม location / pallet
+  group: warehouse + storage type + batch + serial + MFG + EXP — เอาเฉพาะกลุ่มที่ qty_free > 0, เรียง EXP ใกล้หมดก่อน (FEFO)
+  ใช้กับ modal "Product Detail Selection" หน้า STO (ส่ง storage GOOD/NORMAL/RETURN + ตัด location default receive/pick/pack/fab แบบเดียวกับตอน submit)
+  required: company_code, site_code, product_code (ขาด / วันที่ผิดรูปแบบ → 400) — filter อื่นใส่หรือไม่ใส่ก็ได้; page_size สูงสุด 100
+  mfg_date / exp_date (ทั้ง request และ response) = YYYY-MM-DD วันที่ปฏิทิน (DB ชนิด date) ไม่มี timezone
+  error จาก DB ตอบ 500 พร้อม trace_id — รายละเอียดดูใน log ของ service (MongoDB service log / stdout)
+}
+
+post {
+  url: {{WH_URL}}/Inventory/GetInventoryFreeGrouped
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "company_code": "{{companyCode}}",
+    "site_code": "{{siteCode}}",
+    "product_code": "{{productCode}}",
+    "warehouse_codes": [],
+    "storage_types": ["GOOD", "NORMAL", "RETURN"],
+    "warehouse_like": "",
+    "batch_no_like": "",
+    "serial_code_like": "",
+    "mfg_date": "",
+    "exp_date": "",
+    "is_not_default_receive": true,
+    "is_not_default_pick": true,
+    "is_not_default_pack": true,
+    "is_not_default_fab_in": true,
+    "is_not_default_fab_out": true,
+    "page": 1,
+    "page_size": 10
+  }
+}
+
+vars:pre-request {
+  productCode: PMBT-PTS01-001
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("every row has free qty", function () {
+    (res.body.datas || []).forEach(function (r) { expect(r.qty_free).to.be.above(0); });
+  });
+  test("dates are calendar dates", function () {
+    (res.body.datas || []).forEach(function (r) {
+      [r.mfg_date, r.exp_date].forEach(function (d) { if (d) expect(d).to.match(/^\d{4}-\d{2}-\d{2}$/); });
+    });
+  });
+}
