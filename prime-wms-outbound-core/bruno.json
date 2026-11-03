@@ -1,0 +1,6 @@
+{
+  "version": "1",
+  "name": "prime-wms-outbound-core",
+  "type": "collection",
+  "ignore": ["node_modules", ".git"]
+}

@@ -1,0 +1,6 @@
+{
+  "version": "1",
+  "name": "prime-wms-packing-core",
+  "type": "collection",
+  "ignore": ["node_modules", ".git"]
+}
