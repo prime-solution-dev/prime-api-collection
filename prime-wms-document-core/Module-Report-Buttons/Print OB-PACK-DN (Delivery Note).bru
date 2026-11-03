@@ -1,0 +1,42 @@
+meta {
+  name: Print OB-PACK-DN (Delivery Note)
+  type: http
+  seq: 4
+}
+
+docs {
+  ใบ Delivery Note ของ Crossmax (OUTBOUND/OB-PACK-DN) 1 ใบต่อ 1 pack
+  หัวเอกสารไม่มี Contact / Pack Update By / Remark By Ship To แล้ว
+  คอลัมน์ Product SKU = group_value ของ product group PG07 (active) ถ้าไม่มีใช้ product code
+  orderCodes = customer order code (string หรือ array) ดูจาก payload ตอนกด print บนเว็บ
+  token ไม่เก็บใน repo: รันด้วย --env-var token=<jwt>
+}
+
+post {
+  url: {{DOC_URL}}/module-report-buttons/action
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "id": "{{packDnButtonId}}",
+    "data": {
+      "order_code": ["{{orderCode}}"]
+    }
+  }
+}
+
+vars:pre-request {
+  packDnButtonId: b2c3d4e5-0000-4d10-8000-0000000000d2
+  orderCode: 0
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("returns PDF", function () { expect(res.headers["content-type"]).to.contain("application/pdf"); });
+}

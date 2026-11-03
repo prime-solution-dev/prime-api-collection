@@ -1,0 +1,48 @@
+meta {
+  name: Print LBL-INB (Basket Label 3x2)
+  type: http
+  seq: 3
+}
+
+docs {
+  ป้าย Basket-size Label บนหน้า GR (LBL-INB, button_code IB) ของ Crossmax
+  ป้ายขนาด 3x2 นิ้ว 1 ป้ายต่อหน้า (MediaBox 216 x 144 pt) ตาม scripts/migrations/crossmax/inbound_label_report_button.json
+  token ไม่เก็บใน repo: รันด้วย --env-var token=<jwt>
+}
+
+post {
+  url: {{DOC_URL}}/module-report-buttons/action
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "id": "{{inbLabelButtonId}}",
+    "data": {
+      "labelType": "inbound",
+      "items": [
+        {
+          "inboundNo": "INB2605-XXXXXX",
+          "productCode": "FGPS02-340",
+          "productName": "Hooray! Protein Shake Lactose Free Chocolate 340 ml",
+          "batchNo": "3251AC",
+          "expDate": "12 Jan-25"
+        }
+      ]
+    }
+  }
+}
+
+vars:pre-request {
+  inbLabelButtonId: b2c3d4e5-f6a7-8901-bcde-f23456789012
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("returns PDF", function () { expect(res.headers["content-type"]).to.contain("application/pdf"); });
+}

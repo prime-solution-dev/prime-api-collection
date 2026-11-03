@@ -1,0 +1,60 @@
+meta {
+  name: Print OB-ECOM (E-commerce Label + DN)
+  type: http
+  seq: 5
+}
+
+docs {
+  ป้าย e-commerce จาก OMS + ใบ DN ของ Crossmax (OUTBOUND/OB-ECOM) รวมเป็น PDF เดียว ขนาด 4x6
+  หลาย order: หน้าเรียงเป็น [label ของ order 1, DN order 1, label ของ order 2, DN order 2, ...]
+  ตามลำดับ data.labels; จับคู่ label กับ order ด้วย order_sn (+package_id); label ที่จับคู่ไม่ได้อยู่ท้ายไฟล์
+  payload แบบ flat (ไม่มี order_code) ได้เฉพาะ label
+  token ไม่เก็บใน repo: รันด้วย --env-var token=<jwt>
+}
+
+post {
+  url: {{DOC_URL}}/module-report-buttons/action
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "id": "{{ecomButtonId}}",
+    "data": {
+      "labels": [
+        {
+          "order_code": "{{orderCode1}}",
+          "label": [
+            { "shop_code": "{{shopCode}}", "order_sn": "{{orderSn1}}", "package_id": "", "platform_code": "{{platformCode}}" }
+          ]
+        },
+        {
+          "order_code": "{{orderCode2}}",
+          "label": [
+            { "shop_code": "{{shopCode}}", "order_sn": "{{orderSn2}}", "package_id": "", "platform_code": "{{platformCode}}" }
+          ]
+        }
+      ]
+    }
+  }
+}
+
+vars:pre-request {
+  ecomButtonId: c3d4e5f6-1111-4d10-8000-0000000000e3
+  orderCode1: 0
+  orderCode2: 0
+  orderSn1: 0
+  orderSn2: 0
+  shopCode: 0
+  platformCode: 0
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("returns PDF", function () { expect(res.headers["content-type"]).to.contain("application/pdf"); });
+}
