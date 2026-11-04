@@ -1,0 +1,59 @@
+meta {
+  name: Print OB-FUZE (Shipment Label + DN)
+  type: http
+  seq: 6
+}
+
+docs {
+  ใบปะหน้า shipment จาก OMS + ใบ DN ของ Crossmax (OUTBOUND/OB-FUZE) รวมเป็น PDF เดียว ขนาด 4x6
+  หลาย order: หน้าเรียงเป็น [ใบปะหน้า order 1, DN order 1, ใบปะหน้า order 2, DN order 2, ...]
+  order ที่ platform ยังไม่ออกใบปะหน้า (shipment ไม่มี document_base64) ยังพิมพ์ได้ จะได้แค่ DN ของ order นั้น ไม่ 500
+  ค่าเริ่มต้นเป็นเคส Crossmax: SO1126200083 ยังไม่มีใบปะหน้า
+  token ไม่เก็บใน repo: รันด้วย --env-var token=<jwt>
+}
+
+post {
+  url: {{DOC_URL}}/module-report-buttons/action
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "id": "{{fuzeButtonId}}",
+    "data": {
+      "orders": [
+        {
+          "order_code": "{{orderCode1}}",
+          "label": [
+            { "shop_code": "{{shopCode}}", "order_sn": "{{orderSn1}}", "platform_code": "FUZE" }
+          ]
+        },
+        {
+          "order_code": "{{orderCode2}}",
+          "label": [
+            { "shop_code": "{{shopCode}}", "order_sn": "{{orderSn2}}", "platform_code": "FUZE" }
+          ]
+        }
+      ]
+    }
+  }
+}
+
+vars:pre-request {
+  fuzeButtonId: b2c3d4e5-0000-4d10-8000-0000000000f2
+  orderCode1: SO1126200082
+  orderSn1: 586959084276909510
+  orderCode2: SO1126200083
+  orderSn2: 586959149390071238
+  shopCode: HRYTTS001-1
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("returns PDF", function () { expect(res.headers["content-type"]).to.contain("application/pdf"); });
+}
