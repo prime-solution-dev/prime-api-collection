@@ -9,6 +9,7 @@ docs {
   หลาย order: หน้าเรียงเป็น [label ของ order 1, DN order 1, label ของ order 2, DN order 2, ...]
   ตามลำดับ data.labels; จับคู่ label กับ order ด้วย order_sn (+package_id); label ที่จับคู่ไม่ได้อยู่ท้ายไฟล์
   payload แบบ flat (ไม่มี order_code) ได้เฉพาะ label
+  คอลัมน์ Product SKU บน DN = PG07 (product group ที่ active) ของสินค้า ไม่มี PG07 ใช้ product_code
   token ไม่เก็บใน repo: รันด้วย --env-var token=<jwt>
 }
 
