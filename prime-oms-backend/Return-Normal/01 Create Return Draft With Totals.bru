@@ -1,0 +1,50 @@
+meta {
+  name: 01 Create Return Draft With Totals
+  type: http
+  seq: 1
+}
+
+docs {
+  สร้างใบคืน draft (status DRAFT → BE เก็บเป็น TEMP ไม่ยิง GR ไป WMS) พร้อมยอดหัวบิลที่หน้าเว็บคำนวณ
+  trade_discount / shipping_fee / subtotal_with_vat / sub_total / total_vat / total_amount ต้องถูกบันทึกลง header
+}
+
+post {
+  url: {{OMS_URL}}/sell-order/create-return
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "source": "MANUAL",
+    "sale_code": "",
+    "customer_code": "BRUNO-TEST",
+    "sold_to_code": "BRUNO-TEST",
+    "market_type": "3",
+    "so_input": "WITH_VAT",
+    "status": "DRAFT",
+    "remark": "bruno: return header totals",
+    "trade_discount": 20,
+    "shipping_fee": 100,
+    "subtotal_with_vat": 535,
+    "sub_total": 500,
+    "total_vat": 40.19,
+    "total_amount": 615,
+    "items": []
+  }
+}
+
+script:post-response {
+  const d = res.body?.data ?? res.body;
+  bru.setVar("returnId", d?.id || d?.sale_id || "");
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("ได้ id ใบคืน", function () { expect(bru.getVar("returnId")).to.not.equal(""); });
+}

@@ -1,0 +1,23 @@
+meta {
+  name: 03 Delete Return Draft
+  type: http
+  seq: 3
+}
+
+docs {
+  ลบใบคืน draft ที่สร้างในขั้น 01 (cleanup)
+}
+
+delete {
+  url: {{OMS_URL}}/sell-order/return/{{returnId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}

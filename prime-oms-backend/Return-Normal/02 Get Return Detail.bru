@@ -1,0 +1,31 @@
+meta {
+  name: 02 Get Return Detail
+  type: http
+  seq: 2
+}
+
+docs {
+  อ่านใบคืนที่สร้างในขั้น 01: header ต้องมียอดตามที่ส่งไป (ก่อนแก้จะเป็น 0 ทั้งหมด)
+}
+
+post {
+  url: {{OMS_URL}}/sell-order/GetReturnDetail
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  { "id": "{{returnId}}" }
+}
+
+tests {
+  const h = (res.body?.data ?? res.body).header;
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("tradeDiscount = 20", function () { expect(h.tradeDiscount).to.equal(20); });
+  test("shippingFee = 100", function () { expect(h.shippingFee).to.equal(100); });
+  test("totalAmount = 615", function () { expect(h.totalAmount).to.equal(615); });
+}
