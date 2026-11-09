@@ -28,4 +28,5 @@ tests {
   test("tradeDiscount = 20", function () { expect(h.tradeDiscount).to.equal(20); });
   test("shippingFee = 100", function () { expect(h.shippingFee).to.equal(100); });
   test("totalAmount = 615", function () { expect(h.totalAmount).to.equal(615); });
+  test("platformOrderRefDisplay present", function () { expect(h).to.have.property("platformOrderRefDisplay"); });
 }

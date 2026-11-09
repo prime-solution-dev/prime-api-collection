@@ -1,0 +1,36 @@
+meta {
+  name: 04 Get Return List
+  type: http
+  seq: 4
+}
+
+docs {
+  รายการใบคืน: ทุกแถวต้องมี platformOrderRefDisplay (TSN = poNumber/returnNo, platform อื่น = customerOrderRef เดิม)
+}
+
+post {
+  url: {{OMS_URL}}/sell-order/GetReturnSalesOrders
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  { "order_type": ["RETURN"], "page": 1, "page_size": 20 }
+}
+
+tests {
+  const list = (res.body?.data ?? res.body).SalesOrderList || [];
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("every row has platformOrderRefDisplay", function () {
+    list.forEach((r) => expect(r).to.have.property("platformOrderRefDisplay"));
+  });
+  test("non-TSN row = customerOrderRef", function () {
+    list.filter((r) => r.interfacePlatform !== "TSN").forEach((r) => {
+      expect(r.platformOrderRefDisplay).to.equal(r.customerOrderRef);
+    });
+  });
+}
