@@ -1,0 +1,40 @@
+meta {
+  name: 01 Get Outbounds by Order
+  type: http
+  seq: 1
+}
+
+docs {
+  หา outbound ของ order (ขั้นแรกของการพิมพ์ป้ายตะกร้าจากหน้า packing / customer order)
+  API_URL ได้จาก DOC_URL ตัด /document ออก
+}
+
+post {
+  url: {{API_URL}}/outbound/outbound/get-outbounds
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "order_code": ["{{orderCode}}"]
+  }
+}
+
+script:pre-request {
+  bru.setVar("API_URL", bru.getEnvVar("DOC_URL").replace(/\/document$/, ""));
+  if (!bru.getVar("orderCode")) bru.setVar("orderCode", "SO1126100268");
+}
+
+script:post-response {
+  bru.setVar("outboundCode", (res.body[0] || {}).outbound_code);
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("has outbound", function () { expect(res.body.length).to.be.above(0); });
+}

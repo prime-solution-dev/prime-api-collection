@@ -1,0 +1,33 @@
+meta {
+  name: 03 Print IB-BASKET by Picking
+  type: http
+  seq: 3
+}
+
+docs {
+  พิมพ์ป้ายตะกร้า IB-BASKET ด้วย picking_codes (ห้ามส่ง order_codes: warehouse ไม่รับแล้ว → 500 "no basket cart data found")
+}
+
+post {
+  url: {{DOC_URL}}/module-report-buttons/action
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440012",
+    "data": {
+      "picking_codes": ["{{pickingCode}}"]
+    }
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("returns PDF", function () { expect(res.headers["content-type"]).to.contain("application/pdf"); });
+}
