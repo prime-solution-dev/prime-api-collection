@@ -6,7 +6,7 @@ meta {
 
 docs {
   ป้ายตะกร้าลูกค้า (IB-BASKET, Print Doc. > Customer Basket Label) ของ Crossmax ขนาด 4x6 นิ้ว
-  document-core ส่ง item_per_page = 8 ไป warehouse-core /warehouse/basket/cal-cart-outbound เสมอ (ค่า item_per_page ที่ส่งมาจะถูกทับ) → ป้ายละไม่เกิน 8 รายการ
+  ตารางสินค้าแสดงไม่เกิน 8 แถวต่อหน้า (maxRowsPerPage = 8 ใน template) ตะกร้าที่มีมากกว่า 8 รายการจะต่อหน้าใหม่พร้อมหัวป้ายซ้ำ
   PO# = order.document_ref (คัดลอกมาจาก sale.document_ref ใน OMS ตอนส่ง SO เข้า WMS)
   template: scripts/migrations/crossmax/basket_size_label_report_button.json
   token ไม่เก็บใน repo: รันด้วย --env-var token=<jwt>
