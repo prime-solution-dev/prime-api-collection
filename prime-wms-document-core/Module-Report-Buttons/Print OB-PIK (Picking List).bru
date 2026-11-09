@@ -6,7 +6,11 @@ meta {
 
 docs {
   Picking List (OB-PIK, Print Picking Doc.) ของ Crossmax
-  คอลัมน์ Day to Expired = Expiry Date − delivery_date ของ order แรกของรายการ (field day_to_expired_delivery)
+  หัวกระดาษรวมทุก order ในใบ (single pick / group pick ใช้ทางเดียวกัน, field header_*):
+    Order Date, Plan Delivery Date = Max; Customer Order/Code/Name, Transport Zone, GL Reason, Remarks
+    = ค่าเดียวแสดงค่า, หลายค่า (ไม่นับซ้ำ/ว่าง) แสดง "Multiple (x)"
+  GL Reason มาจาก WMS order.reason_name (ว่างใช้ reason) ผ่าน order-core
+  คอลัมน์ Day to Expired = Expiry Date − Max(delivery_date) ของทุก order ในใบ (field day_to_expired_delivery)
   ไม่มี expiry หรือ delivery date → เว้นว่าง; Pacifica ยังใช้ day_to_expired (Expiry − วันนี้)
   template: scripts/migrations/crossmax/picking_report_button.json
   token ไม่เก็บใน repo: รันด้วย --env-var token=<jwt>

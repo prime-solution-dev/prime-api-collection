@@ -1,0 +1,40 @@
+meta {
+  name: Create Customer Order (OMS to WMS)
+  type: http
+  seq: 1
+}
+
+docs {
+  OMS ยิงเข้ามาตอน dispatch sale → document-core สร้าง WMS order ผ่าน order-core
+  GL Reason: reason_code → order.reason, reason_name → order.reason_name (OMS resolve ชื่อจาก reason master)
+  remark → order.remark (Remarks ของ Picking List)
+  ระวัง: สร้าง order จริง ใช้กับ Local/Dev เท่านั้น เปลี่ยน sale_code ทุกครั้ง
+  ไม่ใส่ site_code/company_code = ข้ามการแปลงหน่วย
+}
+
+post {
+  url: {{DOC_URL}}/interface/CreateCustomerOrder
+  body: json
+  auth: none
+}
+
+body:json {
+  [
+    {
+      "sale_code": "SO-BRUNO-GL-0001",
+      "customer_code": "CUST01",
+      "customer_name": "ลูกค้าทดสอบ",
+      "transport_zone": "Z1",
+      "reason_code": "GL01",
+      "reason_name": "ตัวอย่างสินค้า",
+      "remark": "โทรก่อนส่ง",
+      "items": [
+        { "sale_item": "00000000-0000-0000-0000-000000000001", "product_code": "{{productCode}}", "qty": 1, "unit": "{{unitCode}}" }
+      ]
+    }
+  ]
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}
