@@ -1,0 +1,41 @@
+meta {
+  name: Print OB-PIK (Picking List)
+  type: http
+  seq: 9
+}
+
+docs {
+  Picking List (OB-PIK, Print Picking Doc.) ของ Crossmax
+  คอลัมน์ Day to Expired = Expiry Date − delivery_date ของ order แรกของรายการ (field day_to_expired_delivery)
+  ไม่มี expiry หรือ delivery date → เว้นว่าง; Pacifica ยังใช้ day_to_expired (Expiry − วันนี้)
+  template: scripts/migrations/crossmax/picking_report_button.json
+  token ไม่เก็บใน repo: รันด้วย --env-var token=<jwt>
+}
+
+post {
+  url: {{DOC_URL}}/module-report-buttons/action
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "id": "{{pickButtonId}}",
+    "data": {
+      "picking_code": ["PIK2611-00154"]
+    }
+  }
+}
+
+vars:pre-request {
+  pickButtonId: 550e8400-e29b-41d4-a716-446655440006
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("returns PDF", function () { expect(res.headers["content-type"]).to.contain("application/pdf"); });
+}

@@ -1,0 +1,41 @@
+meta {
+  name: Print IB-BASKET (Customer Basket Label)
+  type: http
+  seq: 8
+}
+
+docs {
+  ป้ายตะกร้าลูกค้า (IB-BASKET, Print Doc. > Customer Basket Label) ของ Crossmax ขนาด 4x6 นิ้ว
+  document-core ส่ง item_per_page = 8 ไป warehouse-core /warehouse/basket/cal-cart-outbound เสมอ (ค่า item_per_page ที่ส่งมาจะถูกทับ) → ป้ายละไม่เกิน 8 รายการ
+  PO# = order.document_ref (คัดลอกมาจาก sale.document_ref ใน OMS ตอนส่ง SO เข้า WMS)
+  template: scripts/migrations/crossmax/basket_size_label_report_button.json
+  token ไม่เก็บใน repo: รันด้วย --env-var token=<jwt>
+}
+
+post {
+  url: {{DOC_URL}}/module-report-buttons/action
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "id": "{{basketButtonId}}",
+    "data": {
+      "picking_codes": ["PIK2611-00154"]
+    }
+  }
+}
+
+vars:pre-request {
+  basketButtonId: 550e8400-e29b-41d4-a716-446655440012
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("returns PDF", function () { expect(res.headers["content-type"]).to.contain("application/pdf"); });
+}
