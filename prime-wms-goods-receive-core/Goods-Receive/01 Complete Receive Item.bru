@@ -1,0 +1,50 @@
+meta {
+  name: 01 Complete Receive Item
+  type: http
+  seq: 1
+}
+
+docs {
+  เว็บกด Confirm GR → complete GR (ทั้งใบหรือบาง item)
+  Crossmax: user แก้ GR Completed Date ตอน PENDING → เว็บส่ง
+  - header `submit_date` → goods_receive.submit_date (GR Completed Date)
+  - header + item `receive_date` → goods_receive.receive_date / วันรับ inventory / SAP GRPO PostingDate
+  ไม่แก้ → ไม่ส่งทั้งคู่ backend ใช้ now(); SAP DueDate = inbound.estimate_gr_date (ไม่เกี่ยว)
+  ก่อนยิง: เติม receiveId/receiveCode และ goods_receive_item จาก GR PENDING จริง (ใช้ payload เดียวกับที่เว็บส่ง)
+}
+
+post {
+  url: {{GR_URL}}/complete-receive-item
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "receive_id": "{{receiveId}}",
+    "receive_code": "{{receiveCode}}",
+    "company_code": "{{companyCode}}",
+    "site_code": "{{siteCode}}",
+    "submit_date": "{{completedDate}}",
+    "receive_date": "{{completedDate}}",
+    "goods_receive_item": [],
+    "note": "",
+    "client_source": "WEB"
+  }
+}
+
+vars:pre-request {
+  receiveId: 00000000-0000-0000-0000-000000000000
+  receiveCode: GR0000-0000000
+  completedDate: 2026-11-01T02:00:00.000Z
+}
+
+tests {
+  test("status 200", function () {
+    expect(res.status).to.equal(200);
+  });
+}
