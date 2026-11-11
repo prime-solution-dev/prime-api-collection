@@ -1,0 +1,33 @@
+meta {
+  name: Get Packing
+  type: http
+  seq: 1
+}
+
+docs {
+  รายการ packing ของ outbound/order — order[] ต้องมี picking_method (FULL / PARTIAL / ONETIME) ให้หน้า Packing ใช้บล็อก confirm
+}
+
+post {
+  url: {{OUTBOUND_URL}}/packing/get-packing
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "outbound_code": ["{{outboundCode}}"],
+    "order_no": ["{{orderNo}}"],
+    "page": 1,
+    "page_size": 1
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("order has picking_method", function () { expect(res.body.packing[0].order[0]).to.have.property("picking_method"); });
+}
