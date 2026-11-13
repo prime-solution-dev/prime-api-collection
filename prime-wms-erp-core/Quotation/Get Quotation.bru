@@ -1,0 +1,31 @@
+meta {
+  name: Get Quotation
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{ERP_URL}}/quotation/GetQuotation
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "quotation_code": ["{{quotationCode}}"]
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("quotations array", function () { expect(res.body.quotations).to.be.an("array"); });
+}
+
+docs {
+  ดึงใบเสนอราคาตามรหัส (document-core CTM-CTM5 ใช้ endpoint นี้พิมพ์ PDF)
+  contact_person: ผู้ติดต่อที่ผู้ใช้กรอกเองบนหน้าใบเสนอราคา (TMI issue log #40/#42)
+    - ส่งใน CreateQuotation / UpdateQuotation / ReviseQuotation ที่ระดับใบ (quotations[].contact_person)
+    - ว่าง = PDF ใช้ผู้ติดต่อจาก customer master (sold-to ก่อน แล้ว ship-to) ตามเดิม
+    - UpdateQuotation ส่ง "" เพื่อลบได้
+  ตั้ง env: quotationCode
+}
