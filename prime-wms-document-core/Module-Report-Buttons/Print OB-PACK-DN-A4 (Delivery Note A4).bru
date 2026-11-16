@@ -1,0 +1,42 @@
+meta {
+  name: Print OB-PACK-DN-A4 (Delivery Note A4)
+  type: http
+  seq: 10
+}
+
+docs {
+  ใบ Delivery Note ของ Crossmax ขนาด A4 (OUTBOUND/OB-PACK-DN-A4) = เมนู "DN Document - A4" บนเว็บ
+  ข้อมูลชุดเดียวกับ OB-PACK-DN (4x6): order_code -> outbound -> packing, 1 ชุดหน้าต่อ 1 pack
+  เพิ่มช่อง Reference # / TP Zone / Order Date / Delivery Date / Remark จาก order (วันที่เป็นเวลาไทย)
+  orderCode = customer order code (string หรือ array) ดูจาก payload ตอนกด print บนเว็บ
+  token ไม่เก็บใน repo: รันด้วย --env-var token=<jwt>
+}
+
+post {
+  url: {{DOC_URL}}/module-report-buttons/action
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "id": "{{packDnA4ButtonId}}",
+    "data": {
+      "order_code": ["{{orderCode}}"]
+    }
+  }
+}
+
+vars:pre-request {
+  packDnA4ButtonId: b2c3d4e5-0000-4d10-8000-0000000000d4
+  orderCode: 0
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("returns PDF", function () { expect(res.headers["content-type"]).to.contain("application/pdf"); });
+}
