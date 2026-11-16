@@ -1,0 +1,26 @@
+meta {
+  name: Import Unknown Hook
+  type: http
+  seq: 7
+}
+
+docs {
+  hook ที่ไม่มีทั้ง document_type_item.endpoint และ hook_config ต้องได้ 404 {"error":"import config not found"} (ก่อนหน้านี้ตอบ 200 เงียบ)
+  ต้องแนบไฟล์ เพราะไม่มีไฟล์จะได้ 400 ก่อนถึงการหา config
+}
+
+post {
+  url: {{DOC_URL}}/report/Import?company_code={{companyCode}}&site_code={{siteCode}}&hook_module=MASTER&hook_topic=NOPE&hook_sub_topic=IMPORT
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  file: @file(../prime-wms-reports/fixtures/product.xlsx)
+}
+
+tests {
+  test("status 404", function () {
+    expect(res.getStatus()).to.equal(404);
+  });
+}

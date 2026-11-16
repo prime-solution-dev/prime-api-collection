@@ -1,0 +1,28 @@
+meta {
+  name: Import Product
+  type: http
+  seq: 4
+}
+
+docs {
+  Import product ผ่านตัวกลาง document-core: หา URL จาก document_type_item.endpoint (MASTER/PRODUCT/IMPORT) แล้วส่งไฟล์ + company_code / site_code + Authorization ต่อให้ reports
+  คืน status + body ของปลายทางตามจริง: 200 = {status:"success", summary, warnings}; 400 = {error, errors:[{row, column, message}]}; 404 = ไม่มี config; 502 = ปลายทางตอบไม่ใช่ JSON
+  fixture ใช้ร่วมกับ collection prime-wms-reports (ข้อมูลตัวอย่างต้องมีใน master ของ env ที่ยิง)
+}
+
+post {
+  url: {{DOC_URL}}/report/Import?company_code={{companyCode}}&site_code={{siteCode}}&hook_module=MASTER&hook_topic=PRODUCT&hook_sub_topic=IMPORT
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  file: @file(../prime-wms-reports/fixtures/product.xlsx)
+}
+
+tests {
+  test("status 200 and success", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().status).to.equal("success");
+  });
+}

@@ -1,0 +1,50 @@
+meta {
+  name: Upsert Location
+  type: http
+  seq: 1
+}
+
+docs {
+  upsert location จากแถว JSON ที่ reports parse จาก Excel แล้ว (body: company_code, site_code, rows) — upsert ด้วย warehouse + location_code ใน transaction เดียว
+  core ตรวจ master (warehouse active ใน site, zone ใน warehouse, location size) และหา flag จาก location_type เอง
+  pick_seq > 0 เขียน location.pick_sequence และ upsert location_seq (seq_type = PICK); 0 = ไม่แตะ location_seq
+  ก่อนรัน: แก้ zoneCode / locationSize ใน vars ให้ตรง master ของ warehouseCode บน env นั้น — ระวัง: เขียนข้อมูลจริงลง DB ของ env ที่เลือก
+}
+
+post {
+  url: {{WH_URL}}/Warehouse/upsert-location
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "company_code": "{{companyCode}}",
+    "site_code": "{{siteCode}}",
+    "rows": [
+      {
+        "row": 2,
+        "rack": "BRU",
+        "bay": "01",
+        "level": "01",
+        "location_name": "BRU-01-01",
+        "zone": "{{zoneCode}}",
+        "warehouse": "{{warehouseCode}}",
+        "size": "{{locationSize}}",
+        "pick_seq": 0,
+        "location_type": "Normal",
+        "multi_pallet": false
+      }
+    ]
+  }
+}
+
+vars:pre-request {
+  zoneCode: PRM-NORMAL
+  locationSize: bbb
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("success", function () { expect(res.body.status).to.equal("success"); });
+}

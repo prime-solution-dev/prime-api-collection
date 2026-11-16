@@ -1,0 +1,38 @@
+meta {
+  name: Import Product Invalid Master
+  type: http
+  seq: 3
+}
+
+docs {
+  base_unit ที่ไม่มีใน unit master: core ต้องตอบ 400 validation failed พร้อม errors รายแถว และไม่เขียนอะไรเลย
+  คาดหวัง: 400 { error: "validation failed", errors: [{ row: 2, column: "Base Unit*", message }] }
+  ตั้ง env: companyCode, siteCode
+}
+
+post {
+  url: {{PRODUCT_URL}}/Product/import-product
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "company_code": "{{companyCode}}",
+    "site_code": "{{siteCode}}",
+    "rows": [
+      {
+        "row": 2,
+        "product_code": "QA-IMPORT-002",
+        "product_name": "QA Import 002",
+        "base_unit": "QA-NO-SUCH-UOM",
+        "active_flg": true
+      }
+    ]
+  }
+}
+
+tests {
+  test("400", function () { expect(res.status).to.equal(400); });
+  test("error on row 2", function () { expect(res.body.errors[0].row).to.equal(2); });
+}

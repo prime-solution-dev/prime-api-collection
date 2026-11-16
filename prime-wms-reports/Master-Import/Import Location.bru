@@ -1,0 +1,29 @@
+meta {
+  name: Import Location
+  type: http
+  seq: 6
+}
+
+docs {
+  Import จากไฟล์ .xlsx (sheet "Location Master") company_code / site_code ส่งทาง query
+  reports ตรวจรูปแบบไฟล์แล้วส่งต่อ warehouse-core /warehouse/Warehouse/upsert-location และคืน response ของ core ตามเดิม
+  200 = {status:"success", summary, warnings}; 400 = {error, errors:[{row, column, message}]}; 502 = core ล่ม
+  fixture = ผลของ request Export template (ข้อมูลตัวอย่างต้องมีใน master ของ env ที่ยิง ไม่งั้น core ตอบ 400)
+}
+
+post {
+  url: {{REPORTS_URL}}/import/ImportLocation?company_code={{companyCode}}&site_code={{siteCode}}
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  file: @file(fixtures/location.xlsx)
+}
+
+tests {
+  test("status 200 and success", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().status).to.equal("success");
+  });
+}

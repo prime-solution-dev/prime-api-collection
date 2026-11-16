@@ -1,0 +1,42 @@
+meta {
+  name: Upsert Location Unknown Warehouse
+  type: http
+  seq: 2
+}
+
+docs {
+  warehouse ที่ไม่มีใน site -> 400 {error: "validation failed", errors[]} และไม่เขียนอะไร (column = "Warehouse*")
+}
+
+post {
+  url: {{WH_URL}}/Warehouse/upsert-location
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "company_code": "{{companyCode}}",
+    "site_code": "{{siteCode}}",
+    "rows": [
+      {
+        "row": 2,
+        "rack": "BRU",
+        "bay": "01",
+        "level": "01",
+        "location_name": "BRU-01-01",
+        "zone": "Z1",
+        "warehouse": "NO-SUCH-WH",
+        "size": "S1",
+        "pick_seq": 0,
+        "location_type": "Normal",
+        "multi_pallet": false
+      }
+    ]
+  }
+}
+
+tests {
+  test("400", function () { expect(res.status).to.equal(400); });
+  test("warehouse error", function () { expect(res.body.errors[0].column).to.equal("Warehouse*"); });
+}

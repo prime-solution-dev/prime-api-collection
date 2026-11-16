@@ -1,0 +1,27 @@
+meta {
+  name: Export Location Template
+  type: http
+  seq: 3
+}
+
+docs {
+  ดาวน์โหลด template Location Master ผ่านตัวกลาง document-core: หา URL จาก document_type_item.endpoint (MASTER/LOCATION/EXPORT) ต่อท้าย base_url แล้ว fallback hook_config
+  ส่ง company_code / site_code และ header Authorization ต่อให้ reports; ไม่มี config = 404
+}
+
+post {
+  url: {{DOC_URL}}/report/Export?company_code={{companyCode}}&site_code={{siteCode}}&hook_module=MASTER&hook_topic=LOCATION&hook_sub_topic=EXPORT
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {}
+}
+
+tests {
+  test("status 200 and xlsx", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getHeader("content-type")).to.contain("spreadsheetml");
+  });
+}

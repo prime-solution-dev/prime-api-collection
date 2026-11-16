@@ -1,0 +1,41 @@
+meta {
+  name: Import Product
+  type: http
+  seq: 1
+}
+
+docs {
+  POST /Product/import-product: รับแถวที่ reports parse จาก Excel แล้ว (JSON) ตรวจ master + upsert ทั้งชุดใน transaction เดียว
+  body: { company_code, site_code, rows: [productImportRow] } โดย rows[].row = เลขแถวใน Excel
+  ปกติ reports เป็นคนยิง เส้นนี้ใช้ทดสอบ core ตรง
+  ข้อมูลทดสอบใช้รหัสขึ้นต้น QA-IMPORT- (base_unit PCS ต้องมีใน unit master ของ env)
+  ตั้ง env: companyCode, siteCode
+  คาดหวัง: 200 { status: "success", summary, warnings }
+}
+
+post {
+  url: {{PRODUCT_URL}}/Product/import-product
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "company_code": "{{companyCode}}",
+    "site_code": "{{siteCode}}",
+    "rows": [
+      {
+        "row": 2,
+        "product_code": "QA-IMPORT-001",
+        "product_name": "QA Import 001",
+        "base_unit": "PCS",
+        "active_flg": true
+      }
+    ]
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("status success", function () { expect(res.body.status).to.equal("success"); });
+}

@@ -1,0 +1,26 @@
+meta {
+  name: Export Product Template
+  type: http
+  seq: 1
+}
+
+docs {
+  ดาวน์โหลด template WMS_Product Master Template.xlsx (sheet ข้อมูล + header + แถวตัวอย่าง + sheet "Alert error")
+}
+
+post {
+  url: {{REPORTS_URL}}/export/ExportProductTemplate
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {}
+}
+
+tests {
+  test("status 200 and xlsx", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getHeader("content-type")).to.contain("spreadsheetml");
+  });
+}

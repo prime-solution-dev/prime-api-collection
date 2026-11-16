@@ -1,0 +1,26 @@
+meta {
+  name: Export Location Template
+  type: http
+  seq: 3
+}
+
+docs {
+  ดาวน์โหลด template WMS_Location_Master_Template.xlsx (sheet ข้อมูล + header + แถวตัวอย่าง + sheet "Alert error")
+}
+
+post {
+  url: {{REPORTS_URL}}/export/ExportLocationTemplate
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {}
+}
+
+tests {
+  test("status 200 and xlsx", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getHeader("content-type")).to.contain("spreadsheetml");
+  });
+}
