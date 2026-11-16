@@ -7,8 +7,10 @@ meta {
 docs {
   ป้ายตะกร้าลูกค้า (IB-BASKET, Print Doc. > Customer Basket Label) ของ Crossmax ขนาด 4x6 นิ้ว
   ตารางสินค้าแสดงไม่เกิน 8 แถวต่อหน้า (maxRowsPerPage = 8 ใน template) ตะกร้าที่มีมากกว่า 8 รายการจะต่อหน้าใหม่พร้อมหัวป้ายซ้ำ
-  PO# = customerOrderRef ของ sell-order ใน OMS (handler ยิง /oms/sell-order/GetSellOrders ด้วย sale_code = order_code ทีละ order) ไม่มีค่า = เว้นว่าง
-  (เดิมใช้ order.document_ref ซึ่งเป็นเลข SO สำหรับใบ MANUAL) ใบ ecom ได้ค่าเดิมเพราะ customerOrderRef = order code ต้นทาง
+  PO# = document_ref_2 ของ WMS order (handler ยิง /order/Order/GetOrders ครั้งเดียวด้วย order_code ทุกใบ) ไม่มีค่า = เว้นว่าง
+  (ตรงกับ customerOrderRef ของ OMS แต่ไม่หาจาก OMS เพราะบาง order เลข SO ไม่ตรงกับ OMS เช่น SO1126100268 → PO 4002841228)
+  (เดิมใช้ order.document_ref ซึ่งเป็นเลข SO)
+  Ship Date (ใต้ PO Date) = submit_date ของ WMS order จาก call เดียวกัน (= Exp. Ship Date ในหน้า Packing List) dd/mm/yyyy, ไม่มีค่า = เว้นว่าง
   หัวป้ายแบ่งคอลัมน์ 148/114, กรอบ CO# ตรงคอลัมน์ขวา
   template: scripts/migrations/crossmax/basket_size_label_report_button.json
   token ไม่เก็บใน repo: รันด้วย --env-var token=<jwt>
