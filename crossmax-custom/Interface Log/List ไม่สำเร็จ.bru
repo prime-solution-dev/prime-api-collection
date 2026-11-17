@@ -36,3 +36,8 @@ docs {
 
   status เป็น array ของ string รับทั้งพิมพ์เล็กพิมพ์ใหญ่
 }
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("items เป็น array", function () { expect(res.body.items).to.be.an("array"); });
+}

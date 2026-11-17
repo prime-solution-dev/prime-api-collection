@@ -1,7 +1,7 @@
 meta {
   name: 400 id ไม่ใช่ uuid
   type: http
-  seq: 14
+  seq: 11
 }
 
 post {
@@ -34,4 +34,9 @@ docs {
     409  ปลายทางรับเอกสารนี้ไปแล้ว (ส่ง force=true ถ้ายืนยัน) หรือ resend ไม่ได้ในสถานะนี้
          (SUCCESS/UNKNOWN หรือ PENDING ที่ยังไม่ถึง 5 นาที)
     503  ยังไม่ตั้ง ITLOG_API_KEY หรือ itlog ปิดอยู่ (ตารางไม่มี/ต่อ DB ไม่ได้)
+}
+
+tests {
+  test("400", function () { expect(res.status).to.equal(400); });
+  test("field id", function () { expect(res.body.field).to.equal("id"); });
 }

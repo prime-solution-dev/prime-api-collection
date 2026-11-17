@@ -35,7 +35,9 @@ docs {
         "is_edited": true, "remote_doc_key": "4242" }
     ]
   }
-  remote_doc_key เป็นค่าระดับ transaction (อ่านจากแถวแม่) จึงเท่ากันทุก attempt
+  remote_doc_key เป็นค่าระดับ transaction (อ่านจากแถวแม่) จึงเท่ากันทุก attempt ที่มี field นี้
+  แต่เป็น omitempty: จะปรากฏในแต่ละ attempt เฉพาะเมื่อ transaction มีค่า
+  (transaction ที่ยังไม่เคยได้เลขเอกสารจะไม่มี field นี้เลย)
 
   ตอบ 404 ถ้าไม่มี id นี้
   ตอบ 400 ถ้า id ไม่ใช่ uuid

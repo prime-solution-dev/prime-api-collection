@@ -31,3 +31,8 @@ docs {
 
   แถว INBOUND ของ master ไม่มี business_key (เป็น batch) ใช้ entity_key แทน
 }
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("items เป็น array", function () { expect(res.body.items).to.be.an("array"); });
+}

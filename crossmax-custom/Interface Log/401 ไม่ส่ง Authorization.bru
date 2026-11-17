@@ -1,7 +1,7 @@
 meta {
   name: 401 ไม่ส่ง Authorization
   type: http
-  seq: 13
+  seq: 10
 }
 
 post {
@@ -32,4 +32,8 @@ docs {
 
   ถ้าไม่ตั้ง ITLOG_API_KEY ใน .env ทุก endpoint จะตอบ 503 ไม่ใช่ 401 (fail closed)
   เพราะ resend ยิงเอกสารเข้า SAP ได้ ปล่อยเปิดไว้ไม่ได้
+}
+
+tests {
+  test("401", function () { expect(res.status).to.equal(401); });
 }
