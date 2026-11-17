@@ -1,0 +1,41 @@
+meta {
+  name: Resend พี่น้อง PENDING
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{CROSSMAX_URL}}/interface-log/resend
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{ITLOG_API_KEY}}
+}
+
+body:json {
+  {
+    "id": "{{ITLOG_RESEND_ID}}",
+    "resent_by": "somchai"
+  }
+}
+
+docs {
+  เคส: transaction อื่นของเอกสารเดียวกัน (business_key + topic เดียวกัน) กำลัง PENDING อยู่
+  ไม่ว่า PENDING นั้นมาจาก resend หรือ call ปกติ จะได้
+    409 {
+      "error": "itlog: เอกสารนี้กำลังถูกส่งอยู่ใน transaction <uuid> — รอให้จบก่อน หรือใช้ force=true ถ้าตั้งใจส่งซ้ำ",
+      "pending_transaction_id": "<uuid>"
+    }
+  และจะไม่มีการยิงออกไปเลย
+
+  เหตุผล: business_key ไม่ unique ถ้า resend สองรายการของเลขเอกสารเดียวกันพร้อมกัน
+  ปลายทางจะได้เอกสารสองใบ จึงให้ผ่านได้ทีละรายการ
+
+  - PENDING ที่ค้างเกิน 5 นาทีถือว่า process ตาย ไม่กัน
+  - business_key ว่าง ไม่ตรวจ
+  - force=true ข้าม guard นี้ (ดู "Resend force")
+  - resend ที่แก้ payload เป็นเลขเอกสารใหม่ ตรวจกับเลขใหม่
+}
