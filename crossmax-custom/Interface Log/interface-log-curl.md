@@ -1,6 +1,6 @@
 # Interface Log API — curl ทุกเส้นทุกเคส
 
-คู่กับไฟล์ `Interface Log - *.yml` ในโฟลเดอร์นี้ (seq 20–34)
+คู่กับไฟล์ `*.bru` ในโฟลเดอร์นี้ (seq 1–14)
 ดีไซน์: `docs/design/interface-transaction-log-db.md` (workspace root)
 
 ## ตั้งค่าก่อนใช้
@@ -8,7 +8,7 @@
 ```bash
 export URL=http://localhost:9119                  # Local
 # export URL=https://wms-dev.prime-lab.cc/api/crossmax-custom   # Dev
-export KEY="$(grep '^ITLOG_API_KEY=' ../../.env | cut -d= -f2)"
+export KEY='<ITLOG_API_KEY>'   # ค่าเดียวกับ ITLOG_API_KEY ใน .env ของ repo crossmax-custom (อย่า commit)
 ```
 
 auth ใช้ `Authorization: Bearer <ITLOG_API_KEY>` **ไม่ใช่** header ชื่อเฉพาะ
