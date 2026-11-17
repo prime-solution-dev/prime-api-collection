@@ -1,0 +1,34 @@
+meta {
+  name: Get Sell Orders By Sale Code
+  type: http
+  seq: 1
+}
+
+docs {
+  ดึง sale order หลายใบด้วย sale_code (batch) ใช้ดู customerOrderRef ที่ document-core เอาไปพิมพ์เป็น Customer PO บน DN (OB-PACK-DN / OB-PACK-DN-A4) และ PO# บนป้าย IB-BASKET
+  page_size ต้องส่งเป็น snake_case (pageSize ไม่มีผล ได้ 20 เสมอ); sale code ที่ไม่มีใน OMS จะไม่อยู่ใน data (document-core จะ fallback ไปใช้ WMS document_ref2)
+  อ่านอย่างเดียว. รัน CLI: --env-var saleCode=<sale_code> (เช่น Dev 100005740658)
+}
+
+post {
+  url: {{OMS_URL}}/sell-order/GetSellOrders
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "sale_code": ["{{saleCode}}"],
+    "page": 1,
+    "page_size": 1
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("has data array", function () { expect(res.body.data).to.be.an("array"); });
+}
