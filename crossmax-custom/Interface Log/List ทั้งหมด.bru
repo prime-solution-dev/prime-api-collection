@@ -1,0 +1,38 @@
+meta {
+  name: List ทั้งหมด
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{CROSSMAX_URL}}/interface-log/list
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{ITLOG_API_KEY}}
+}
+
+body:json {
+  {
+    "limit": 50
+  }
+}
+
+docs {
+  หน้าจอเริ่มต้น: attempt ล่าสุดของแต่ละเอกสาร เรียงใหม่ไปเก่า
+
+  POST + JSON body ทุก endpoint; list คืน 1 แถวต่อ transaction (attempt ล่าสุด)
+  limit 1-200 (ไม่ส่ง = 50)
+
+  ตอบ 200
+  {
+    "total": 2,
+    "items": [ { ...แถว... } ],
+    "next_cursor": "MTc4NTM5..."   // ว่าง = หมดแล้ว
+  }
+
+  ตอบ 503 ถ้ายังไม่ตั้ง ITLOG_API_KEY หรือ itlog ปิดอยู่
+}

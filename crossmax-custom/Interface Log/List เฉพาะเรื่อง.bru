@@ -1,0 +1,40 @@
+meta {
+  name: List เฉพาะเรื่อง
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{CROSSMAX_URL}}/interface-log/list
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{ITLOG_API_KEY}}
+}
+
+body:json {
+  {
+    "topic_group": "TRANSACTION",
+    "topic": "GoodsReceiptPO",
+    "limit": 50
+  }
+}
+
+docs {
+  กรองตามเรื่อง
+
+  topic_group : MASTER | TRANSACTION
+  topic       : ARReserveInvoice, ARReserveInvoiceNoBatch, GoodsReceiptPO,
+                GoodsReceiptPOProduction, GoodsReceipt, GoodsIssue,
+                GoodsReturn, InventoryTransfer, InventoryTransferSTO,
+                IncomingPayment, Return, IssueForProduction,
+                ReceiptFromProduction, ReceiptfromProductionReturn,
+                ClosedProductionOrder, BPMasterData,
+                ItemMaster, ItemMasterComponent, WarehouseMaster,
+                BusinessPatner, VendorMaster
+
+  ส่ง topic_group เดี่ยว ๆ ได้ ถ้าอยากดู master ทั้งหมด
+}

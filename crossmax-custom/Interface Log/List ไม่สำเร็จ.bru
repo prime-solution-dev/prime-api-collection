@@ -1,0 +1,38 @@
+meta {
+  name: List ไม่สำเร็จ
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{CROSSMAX_URL}}/interface-log/list
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{ITLOG_API_KEY}}
+}
+
+body:json {
+  {
+    "status": [
+      "FAILED",
+      "ERROR",
+      "UNKNOWN"
+    ],
+    "limit": 50
+  }
+}
+
+docs {
+  รายการที่ต้องมีคนมาจัดการ
+
+  FAILED  ถึงปลายทางแล้วถูกปฏิเสธ -> กด resend ได้เลย
+  ERROR   ไม่รู้ว่าถึงหรือยัง (timeout/เน็ตขาด) -> ต้องไปเช็คที่ SAP ก่อน
+          ไม่งั้น resend แล้วอาจได้เอกสารซ้ำ
+  UNKNOWN ตอบกลับมาแต่ตีความ envelope ไม่ได้ -> อ่าน response_body เอง
+
+  status เป็น array ของ string รับทั้งพิมพ์เล็กพิมพ์ใหญ่
+}

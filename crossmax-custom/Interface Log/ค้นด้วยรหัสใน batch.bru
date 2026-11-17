@@ -1,0 +1,36 @@
+meta {
+  name: ค้นด้วยรหัสใน batch
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{CROSSMAX_URL}}/interface-log/list
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{ITLOG_API_KEY}}
+}
+
+body:json {
+  {
+    "entity_key": "ITM-001"
+  }
+}
+
+docs {
+  ตอบคำถาม "ItemCode นี้เข้ามาเมื่อไหร่ สำเร็จไหม"
+
+  inbound master ยิงมาทีเดียวหลายร้อยรายการ รหัสทั้งหมดถูกเก็บใน entity_keys
+  (text[]) จึงค้นทีละรหัสได้
+
+  รหัสที่ใช้ได้ต่อเรื่อง
+    ItemMaster           ItemCode
+    ItemMasterComponent  ProductNo
+    WarehouseMaster      WhseCode
+    VendorMaster         CardCode
+    BusinessPatner       customer_code
+}

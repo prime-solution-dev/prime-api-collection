@@ -1,0 +1,42 @@
+meta {
+  name: Resend force
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{CROSSMAX_URL}}/interface-log/resend
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{ITLOG_API_KEY}}
+}
+
+body:json {
+  {
+    "id": "{{ITLOG_ID}}",
+    "resent_by": "somchai",
+    "force": true
+  }
+}
+
+docs {
+  ยิงซ้ำโดยข้ามการตรวจ remote_doc_key และ guard PENDING (ไม่ข้ามการตรวจสถานะ: SUCCESS/UNKNOWN ยังได้ 409)
+
+  ปกติถ้าเคยมี attempt ที่ปลายทางรับไปแล้วและให้เลขเอกสารกลับมา จะได้
+    409 {
+      "error": "itlog: เอกสารนี้ถูกส่งสำเร็จไปแล้ว (remote_doc_key=777) — ใช้ force=true ถ้าตั้งใจส่งซ้ำ",
+      "remote_doc_key": "777"
+    }
+  และจะไม่มีการยิงออกไปเลย
+
+  การตรวจดูข้าม chain ด้วย ไม่ใช่แค่ chain ตัวเอง เพราะ business_key ไม่ unique
+  เคสจริง: ต้นทางยิงเลขเดิมสองครั้ง -> chain A สำเร็จได้ DocEntry 777,
+  chain B ล้ม ถ้าดูแค่ chain B จะไม่เห็นว่า SAP รับไปแล้ว -> เอกสารซ้ำ
+
+  ใช้ force=true เมื่อไปเช็คใน SAP ด้วยตาแล้วว่าเอกสารไม่ได้เข้าจริง
+  เคส ERROR (timeout) ไม่มี remote_doc_key ให้ตรวจ จึงกันอัตโนมัติไม่ได้ ต้องเช็คมือ
+}
