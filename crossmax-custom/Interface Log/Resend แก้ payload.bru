@@ -1,0 +1,110 @@
+meta {
+  name: Resend แก้ payload
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{CROSSMAX_URL}}/interface-log/resend
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{ITLOG_API_KEY}}
+}
+
+body:json {
+  {
+    "id": "a36594d1-ab56-43ab-8431-2b0307ba9e84",
+    "resent_by": "chon",
+    "request_body": {
+      "BPsList": [
+        {
+          "E_Mail": "xxx@gmail.com",
+          "Phone1": "0832251056",
+          "Phone2": "",
+          "Status": "Y",
+          "CardCode": "CMT0087",
+          "CardName": "CMT0087",
+          "CardType": "C",
+          "CreateTS": 64550,
+          "Currency": "##",
+          "GroupNum": 0,
+          "UpdateTS": 64550,
+          "VatGroup": "OG07",
+          "WTLiable": "N",
+          "BillToDef": "สำนักงานใหญ่",
+          "CardFName": "CMT0087",
+          "CntctPrsn": "ok",
+          "GroupName": "1",
+          "OldBPCode": null,
+          "ShipToDef": "CMT0087",
+          "CreateDate": "2026-08-18",
+          "CreditLine": 0,
+          "LicTradNum": "1000000000000",
+          "TypWTReprt": "C",
+          "UpdateDate": "2026-08-18",
+          "ListAddress": [
+            {
+              "City": "กรุงเทพมหานคร",
+              "Block": "เขตคลองสามวา",
+              "Street": "ทรายกองดิน",
+              "Address": "สำนักงานใหญ่",
+              "LineNum": 0,
+              "ZipCode": "10510",
+              "Building": "17/11 ซอยนวมินทร์ 111, ทรายกองดิน, เขตคลองสามวา, กรุงเทพมหานคร, TH, 10510",
+              "StreetNo": "",
+              "AdresType": "B",
+              "BpBrnCode": "0000",
+              "BpBrnName": "สำนักงานใหญ่"
+            },
+            {
+              "City": "กรุงเทพมหานคร",
+              "Block": "เขตคลองสามวา",
+              "Street": "ทรายกองดิน",
+              "Address": "CMT0087",
+              "LineNum": 1,
+              "ZipCode": "10510",
+              "Building": "ทรายกองดิน, ทรายกองดิน, เขตคลองสามวา, กรุงเทพมหานคร, TH, 10510",
+              "StreetNo": "",
+              "AdresType": "S",
+              "BpBrnCode": "",
+              "BpBrnName": ""
+            },
+            {
+              "City": "กรุงเทพมหานคร",
+              "Block": "เขตคลองสามวา",
+              "Street": "ทรายกองดิน",
+              "Address": "CMT0089",
+              "LineNum": 3,
+              "ZipCode": "10510",
+              "Building": "กองดิน, ทรายกองดิน, เขตคลองสามวา, กรุงเทพมหานคร, TH, 10510",
+              "StreetNo": "",
+              "AdresType": "S",
+              "BpBrnCode": "",
+              "BpBrnName": ""
+            }
+          ],
+          "PrefixSeries": ""
+        }
+      ],
+      "TotalRecord": 1
+    }
+  }
+}
+
+docs {
+  แก้ข้อมูลก่อนยิงซ้ำ ใช้ตอน SAP ปฏิเสธเพราะ field ผิด (เช่น CardCode ไม่มีในระบบ)
+
+  ส่ง request_body มาทับได้เลย ไม่มี draft state ในตาราง
+  แถวใหม่จะถูกตั้ง is_edited=true และเก็บ payload ที่แก้แล้วไว้เป็นหลักฐาน
+
+  ให้ copy request_body จากผล /interface-log/detail มาแก้ ไม่ต้องประกอบใหม่จากศูนย์
+  ตัวอย่างข้างบนเป็นรูป payload ของ BusinessPatner (OUTBOUND, /api/master/customer) ที่เรายิงเข้า SAP
+  ไม่ใช่รูปที่ WMS ส่งเข้ามาที่ /Api/Transaction เพราะเราเก็บฝั่ง SAP
+
+  ข้อควรระวัง: แก้แล้ว SAP ถูก แต่ข้อมูลใน WMS ยังเป็นของเดิม
+  สองระบบจะไม่ตรงกัน ต้องไปตามแก้ที่ WMS เองด้วย
+}

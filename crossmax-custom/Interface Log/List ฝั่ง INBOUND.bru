@@ -1,0 +1,36 @@
+meta {
+  name: List ฝั่ง INBOUND
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{CROSSMAX_URL}}/interface-log/list
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{ITLOG_API_KEY}}
+}
+
+body:json {
+  {
+    "direction": "INBOUND",
+    "topic_group": "MASTER",
+    "limit": 50
+  }
+}
+
+docs {
+  ข้อมูลที่ SAP ยิงเข้ามาที่ /Api/Master/*
+
+  direction มองจากมุมเราเสมอ
+    OUTBOUND  เรายิงออกไปหา SAP B1
+    INBOUND   SAP ยิงเข้ามาหาเรา
+
+  หมายเหตุขอบเขต: /Api/Transaction/PurchaseOrder และ /Api/Transaction/TaxInvoiceNo
+  ก็เป็น SAP ยิงเข้ามา แต่ไม่ถูกบันทึกตามขอบเขตที่ตกลงไว้
+  (บันทึก inbound แค่ฝั่ง master)
+}

@@ -1,0 +1,35 @@
+meta {
+  name: List หน้าถัดไป (cursor)
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{CROSSMAX_URL}}/interface-log/list
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{ITLOG_API_KEY}}
+}
+
+body:json {
+  {
+    "limit": 20,
+    "cursor": "{{ITLOG_CURSOR}}"
+  }
+}
+
+docs {
+  หน้าถัดไป ใช้ next_cursor ที่ได้จากคำขอก่อนหน้า
+
+  เป็น keyset pagination บน (create_dtm, id) ของ transaction ไม่ใช่ OFFSET
+  จึงไม่ช้าลงเวลาเลื่อนไปหน้าลึก ๆ และไม่มีแถวซ้ำ/หลุดเวลามีแถวใหม่เข้ามา
+
+  ต้องส่ง filter ชุดเดิมไปพร้อม cursor ด้วย ไม่งั้นผลลัพธ์จะไม่ต่อเนื่อง
+
+  next_cursor ว่าง = หมดแล้ว
+  cursor ที่พังจะได้ 400
+}

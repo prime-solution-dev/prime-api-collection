@@ -1,0 +1,37 @@
+meta {
+  name: 400 id ไม่ใช่ uuid
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{CROSSMAX_URL}}/interface-log/detail
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{ITLOG_API_KEY}}
+}
+
+body:json {
+  {
+    "id": "not-a-uuid"
+  }
+}
+
+docs {
+  เคสทดสอบ validation ต้องได้ 400 {"error":"id: ไม่ใช่ uuid","field":"id"}
+
+  สรุปรหัสตอบกลับทั้งหมด
+    200  สำเร็จ
+    400  id ไม่ใช่ uuid / cursor พัง / limit นอก 1-200 / date ผิดรูปแบบ /
+         body ไม่ใช่ JSON / resend แถว OUTBOUND ที่ไม่มี Sender /
+         resend แถว INBOUND ที่ไม่มี handler ผูกไว้
+    401  ไม่ส่ง Authorization หรือ key ไม่ตรง
+    404  ไม่พบ id
+    409  ปลายทางรับเอกสารนี้ไปแล้ว (ส่ง force=true ถ้ายืนยัน) หรือ resend ไม่ได้ในสถานะนี้
+         (SUCCESS/UNKNOWN หรือ PENDING ที่ยังไม่ถึง 5 นาที)
+    503  ยังไม่ตั้ง ITLOG_API_KEY หรือ itlog ปิดอยู่ (ตารางไม่มี/ต่อ DB ไม่ได้)
+}

@@ -1,0 +1,46 @@
+meta {
+  name: Resend
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{CROSSMAX_URL}}/interface-log/resend
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{ITLOG_API_KEY}}
+}
+
+body:json {
+  {
+    "id": "672ce0e9-bb54-4387-b3af-6825cf5e775e",
+    "resent_by": "chon"
+  }
+}
+
+docs {
+  ยิงซ้ำด้วย payload เดิม
+
+  รับแค่ id แล้วอ่าน target (URL หรือ path) จาก DB โดยเจตนา
+  ห้ามให้ client ส่ง URL เข้ามา ไม่งั้นเปิดช่องยิงอะไรก็ได้ผ่าน crossmax (SSRF)
+
+  OUTBOUND ยิง request_body เดิมไป target เดิม
+           (api_key อ่านสดจาก env ทุกครั้ง จึงไม่ต้องเก็บไว้ใน log)
+  INBOUND  เรียก handler ของ /Api/Master/* ตรง ๆ ไม่ hop เน็ต
+
+  resent_by ต้องส่งมาเอง เพราะ shared secret บอกไม่ได้ว่าใครกด
+
+  ตอบ 200 { "attempt": { "attempt_no": 2, "status": "SUCCESS" } }
+  ตอบ 409 ได้ 2 แบบ
+    - ปลายทางรับเอกสารนี้ไปแล้ว (ดูเคส force)
+    - resend ไม่ได้ในสถานะปัจจุบัน (ErrNotResendable): สถานะ SUCCESS/UNKNOWN
+      หรือ PENDING ที่ยังไม่ถึง 5 นาที (resend ได้เฉพาะ FAILED/ERROR หรือ PENDING ที่ค้างเกิน 5 นาที)
+
+  payload ที่ยิงจะเป็น JSON ที่ความหมายเท่าเดิม แต่ไม่ byte-exact ของเดิม
+  เพราะคอลัมน์เป็น jsonb ซึ่ง PostgreSQL เก็บแบบ parsed
+  (ช่องว่างหาย ลำดับ key อาจเปลี่ยน)
+}

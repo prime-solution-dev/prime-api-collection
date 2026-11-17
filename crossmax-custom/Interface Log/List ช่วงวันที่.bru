@@ -1,0 +1,39 @@
+meta {
+  name: List ช่วงวันที่
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{CROSSMAX_URL}}/interface-log/list
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{ITLOG_API_KEY}}
+}
+
+body:json {
+  {
+    "date_from": "2026-07-01",
+    "date_to": "2026-08-01",
+    "limit": 20
+  }
+}
+
+docs {
+  กรองช่วงวันที่
+
+  date_from  รวมวันนั้น (>=)
+  date_to    YYYY-MM-DD = รวมทั้งวันนั้น (ระบบบวกให้ 1 วัน แล้วเทียบ <)
+               RFC3339 = ก่อนเวลานั้น (<)
+
+  รูปแบบ YYYY-MM-DD ถูกตีเป็นเที่ยงคืนตามเวลาไทย ไม่ใช่ UTC
+    date_from=2026-07-30 -> 2026-07-30T00:00:00+07:00
+
+  ส่ง RFC3339 มาก็ได้ ถ้าต้องการระบุ offset เอง
+    "date_from": "2026-07-30T08:30:00+07:00"
+  (อยู่ใน JSON body จึงไม่ต้อง encode)
+}

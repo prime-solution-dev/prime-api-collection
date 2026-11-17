@@ -1,0 +1,35 @@
+meta {
+  name: 401 ไม่ส่ง Authorization
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{CROSSMAX_URL}}/interface-log/list
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "limit": 1
+  }
+}
+
+docs {
+  เคสทดสอบ auth ต้องได้ 401 {"error":"unauthorized"}
+
+  auth ใช้ Authorization: Bearer <ITLOG_API_KEY>
+
+  เจตนาไม่ใช้ header ชื่อเฉพาะอย่าง X-ITLOG-KEY เพราะ apilog ถูก Use() ไว้ที่ระดับ
+  engine จึง log ทุก request ของทุก route และ mask ให้เฉพาะ header ชื่อ
+  authorization / api_key / cookie / service_token
+  header ชื่ออื่นจะถูกเขียนลง MongoDB แบบ plaintext
+
+  ถ้าไม่ตั้ง ITLOG_API_KEY ใน .env ทุก endpoint จะตอบ 503 ไม่ใช่ 401 (fail closed)
+  เพราะ resend ยิงเอกสารเข้า SAP ได้ ปล่อยเปิดไว้ไม่ได้
+}

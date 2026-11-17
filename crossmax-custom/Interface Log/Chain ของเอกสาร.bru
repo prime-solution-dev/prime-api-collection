@@ -1,0 +1,42 @@
+meta {
+  name: Chain ของเอกสาร
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{CROSSMAX_URL}}/interface-log/detail
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{ITLOG_API_KEY}}
+}
+
+body:json {
+  {
+    "id": "{{ITLOG_ID}}"
+  }
+}
+
+docs {
+  ไล่ทุก attempt ของเอกสารหนึ่ง เรียงจาก attempt_no 1 ไปล่าสุด
+
+  POST /interface-log/detail ส่ง id ของ transaction ใน body
+
+  ตอบ 200
+  {
+    "transaction_id": "...",
+    "attempts": [
+      { "attempt_no": 1, "status": "FAILED",  "remote_doc_key": "4242", "create_dtm": "2026-07-30T..." },
+      { "attempt_no": 2, "status": "SUCCESS", "create_by": "somchai",
+        "is_edited": true, "remote_doc_key": "4242" }
+    ]
+  }
+  remote_doc_key เป็นค่าระดับ transaction (อ่านจากแถวแม่) จึงเท่ากันทุก attempt
+
+  ตอบ 404 ถ้าไม่มี id นี้
+  ตอบ 400 ถ้า id ไม่ใช่ uuid
+}

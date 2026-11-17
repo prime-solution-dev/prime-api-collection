@@ -1,0 +1,33 @@
+meta {
+  name: ค้นด้วยเลขเอกสาร
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{CROSSMAX_URL}}/interface-log/list
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{ITLOG_API_KEY}}
+}
+
+body:json {
+  {
+    "business_key": "PGR2607-4408"
+  }
+}
+
+docs {
+  ค้นด้วยเลขเอกสารฝั่งเรา (CMR_WMSRefDoc)
+
+  list คืน attempt ล่าสุดของแต่ละ transaction ใช้ /interface-log/detail ดูทุก attempt
+
+  business_key ไม่ unique: ถ้าต้นทางยิงเลขเดิมเข้ามาสองครั้งจะได้สอง chain
+  แยกกัน ผลลัพธ์จึงอาจมีมากกว่าหนึ่ง transaction ให้ดู transaction_id ประกอบ
+
+  แถว INBOUND ของ master ไม่มี business_key (เป็น batch) ใช้ entity_key แทน
+}
