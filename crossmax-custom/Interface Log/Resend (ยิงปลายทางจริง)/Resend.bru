@@ -17,13 +17,13 @@ headers {
 
 body:json {
   {
-    "id": "{{ITLOG_ID}}",
+    "id": "{{ITLOG_RESEND_ID}}",
     "resent_by": "chon"
   }
 }
 
 docs {
-  ยิงซ้ำด้วย payload เดิม — ตั้ง ITLOG_ID เป็น transaction_id ของรายการ FAILED/ERROR ก่อน (ค่าเริ่มต้นเป็น nil uuid = 404)
+  ยิงซ้ำด้วย payload เดิม — ตั้ง ITLOG_RESEND_ID เป็น transaction_id ของรายการ FAILED/ERROR ก่อน (ค่าเริ่มต้นเป็น nil uuid = 404)
   attempt ใหม่ของ OUTBOUND จะมี req_headers (mask แล้ว); resend ของ INBOUND เรียก handler ตรง ไม่มี HTTP request จึงไม่มี req_headers
 
   รับแค่ id แล้วอ่าน target (URL หรือ path) จาก DB โดยเจตนา
