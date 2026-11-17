@@ -36,10 +36,12 @@ docs {
   resent_by ต้องส่งมาเอง เพราะ shared secret บอกไม่ได้ว่าใครกด
 
   ตอบ 200 { "attempt": { "attempt_no": 2, "status": "SUCCESS" } }
-  ตอบ 409 ได้ 2 แบบ
+  ตอบ 409 ได้ 3 แบบ
     - ปลายทางรับเอกสารนี้ไปแล้ว (ดูเคส force)
     - resend ไม่ได้ในสถานะปัจจุบัน (ErrNotResendable): สถานะ SUCCESS/UNKNOWN
       หรือ PENDING ที่ยังไม่ถึง 5 นาที (resend ได้เฉพาะ FAILED/ERROR หรือ PENDING ที่ค้างเกิน 5 นาที)
+    - พี่น้อง (business_key + topic เดียวกัน) กำลัง PENDING:
+      {"error": "...", "pending_transaction_id": "<uuid>"} (ดู "Resend พี่น้อง PENDING")
 
   payload ที่ยิงจะเป็น JSON ที่ความหมายเท่าเดิม แต่ไม่ byte-exact ของเดิม
   เพราะคอลัมน์เป็น jsonb ซึ่ง PostgreSQL เก็บแบบ parsed
