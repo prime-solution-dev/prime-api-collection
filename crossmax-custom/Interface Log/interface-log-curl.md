@@ -1,6 +1,6 @@
 # Interface Log API — curl ทุกเส้นทุกเคส
 
-คู่กับไฟล์ `*.bru` ในโฟลเดอร์นี้ (seq 1–11 + โฟลเดอร์ย่อย `Resend (ยิงปลายทางจริง)` seq 1–3 ที่ยิงปลายทางจริง — `bru run` ปกติจะไม่รันโดยไม่ใส่ `-r`)
+คู่กับไฟล์ `*.bru` ในโฟลเดอร์นี้ (seq 1–11 + โฟลเดอร์ย่อย `Resend (ยิงปลายทางจริง)` seq 1–3 ที่ยิงปลายทางจริง — `bru run "Interface Log"` ที่ไม่ใส่ `-r` จะข้ามโฟลเดอร์ย่อยนี้ แต่ `bru run` ที่ไม่ระบุ path จะรันทั้ง collection แบบ recursive — ทั้ง 3 request จึงใช้ `{{ITLOG_ID}}` ซึ่งค่าเริ่มต้นเป็น nil uuid (ได้ 404) ต้องตั้ง `ITLOG_ID` เป็น `transaction_id` จริงก่อนจึงจะยิงออก)
 ดีไซน์: `docs/design/interface-transaction-log-db.md` (workspace root)
 
 ## ตั้งค่าก่อนใช้
