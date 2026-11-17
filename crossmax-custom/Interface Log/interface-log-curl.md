@@ -347,6 +347,18 @@ chain A สำเร็จได้ `DocEntry 777`, chain B ล้ม — ถ้
 409 อีกแบบ: resend ไม่ได้ในสถานะปัจจุบัน (`{"error":"itlog: transaction นี้ resend ไม่ได้ในสถานะปัจจุบัน"}`)
 เกิดเมื่อสถานะเป็น SUCCESS/UNKNOWN หรือ PENDING ที่ยังไม่ถึง 5 นาที — resend ได้เฉพาะ FAILED/ERROR หรือ PENDING ที่ค้างเกิน 5 นาที
 
+409 อีกแบบ: transaction อื่นของเอกสารเดียวกัน (`business_key` + topic เดียวกัน) กำลัง PENDING ไม่เกิน 5 นาที
+
+```json
+{
+  "error": "itlog: เอกสารนี้กำลังถูกส่งอยู่ใน transaction <uuid> — รอให้จบก่อน หรือใช้ force=true ถ้าตั้งใจส่งซ้ำ",
+  "pending_transaction_id": "<uuid>"
+}
+HTTP 409
+```
+
+ไม่มีการยิงออกไปเลย — `force=true` ข้ามได้
+
 ### 15. force — ข้าม guard
 
 ```bash

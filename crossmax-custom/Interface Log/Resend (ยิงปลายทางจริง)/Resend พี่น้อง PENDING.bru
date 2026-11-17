@@ -23,6 +23,9 @@ body:json {
 }
 
 docs {
+  คำเตือน: body ของ request นี้เหมือน "Resend" ทุกอย่าง ถ้าตอนกดไม่มีพี่น้องที่ PENDING มาไม่เกิน 5 นาที
+  request นี้คือ Resend ปกติ และจะยิงปลายทางจริงทันที
+
   เคส: transaction อื่นของเอกสารเดียวกัน (business_key + topic เดียวกัน) กำลัง PENDING อยู่
   ไม่ว่า PENDING นั้นมาจาก resend หรือ call ปกติ จะได้
     409 {
@@ -38,4 +41,8 @@ docs {
   - business_key ว่าง ไม่ตรวจ
   - force=true ข้าม guard นี้ (ดู "Resend force")
   - resend ที่แก้ payload เป็นเลขเอกสารใหม่ ตรวจกับเลขใหม่
+
+  วิธีสร้างเคส: ต้องมีสอง transaction ที่ business_key และ topic เดียวกัน — ตัวหนึ่ง PENDING ที่ update_dtm (UTC)
+  ไม่เกิน 5 นาที และ ITLOG_RESEND_ID ชี้ไปอีกตัวที่ FAILED/ERROR
+  เอา pending_transaction_id ไปเรียก /interface-log/detail เพื่อดูรายการที่กำลังส่งอยู่ได้
 }
