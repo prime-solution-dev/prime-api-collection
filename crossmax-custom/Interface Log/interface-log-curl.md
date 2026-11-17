@@ -1,6 +1,6 @@
 # Interface Log API — curl ทุกเส้นทุกเคส
 
-คู่กับไฟล์ `*.bru` ในโฟลเดอร์นี้ (seq 1–14)
+คู่กับไฟล์ `*.bru` ในโฟลเดอร์นี้ (seq 1–11 + โฟลเดอร์ย่อย `Resend (ยิงปลายทางจริง)` seq 1–3 ที่ยิงปลายทางจริง — `bru run "Interface Log"` ที่ไม่ใส่ `-r` จะข้ามโฟลเดอร์ย่อยนี้ แต่ `bru run` ที่ไม่ระบุ path จะรันทั้ง collection แบบ recursive — ทั้ง 3 request จึงใช้ `{{ITLOG_RESEND_ID}}` (แยกจาก `ITLOG_ID` ของ request อ่านอย่างเดียว) ซึ่งค่าเริ่มต้นเป็น nil uuid (ได้ 404) ต้องตั้ง `ITLOG_RESEND_ID` เป็น `transaction_id` จริงก่อนจึงจะยิงออก)
 ดีไซน์: `docs/design/interface-transaction-log-db.md` (workspace root)
 
 ## ตั้งค่าก่อนใช้
@@ -34,7 +34,7 @@ curl -sS -X POST "$URL/interface-log/list" \
 
 ```json
 {
-  "total": 2,
+  "total": 2,   // จำนวนรายการในหน้านี้ (= len(items)) ไม่ใช่จำนวนทั้งหมด
   "items": [
     {
       "id": "9f1c0e2a-6b74-4a1e-9d3f-2c5b8a7e4d10",
@@ -246,7 +246,7 @@ curl -sS -X POST "$URL/interface-log/detail" \
 ```
 </details>
 
-`remote_doc_key` เป็นค่าระดับ transaction (อ่านจากแถวแม่) จึงเท่ากันทุก attempt
+`remote_doc_key` เป็นค่าระดับ transaction (อ่านจากแถวแม่) จึงเท่ากันทุก attempt ที่มี field นี้ — เป็น `omitempty`: ปรากฏเฉพาะเมื่อ transaction มีค่า (ยังไม่เคยได้เลขเอกสาร = ไม่มี field นี้เลย)
 
 ---
 

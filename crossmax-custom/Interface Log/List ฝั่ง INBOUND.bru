@@ -34,3 +34,8 @@ docs {
   ก็เป็น SAP ยิงเข้ามา แต่ไม่ถูกบันทึกตามขอบเขตที่ตกลงไว้
   (บันทึก inbound แค่ฝั่ง master)
 }
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("items เป็น array", function () { expect(res.body.items).to.be.an("array"); });
+}
