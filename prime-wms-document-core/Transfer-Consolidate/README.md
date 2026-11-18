@@ -1,6 +1,6 @@
 # Transfer - Consolidate (Bruno)
 
-รันตามลำดับ 01 → 17 (Bruno Runner ได้) เลือก environment Local หรือ Dev แล้วแก้ข้อมูลทดสอบใน environment ให้ตรงกับข้อมูลจริง
+รันตามลำดับ 01 → 19 (Bruno Runner ได้) เลือก environment Local หรือ Dev แล้วแก้ข้อมูลทดสอบใน environment ให้ตรงกับข้อมูลจริง
 
 ต้องเตรียมก่อนรัน
 - migration warehouse-core `add_is_transfer_consol_staging_to_location.sql` ถูก apply แล้ว
@@ -15,7 +15,7 @@
 
 ```bash
 cd prime-wms-document-core
-npx @usebruno/cli@2 run "Transfer-Consolidate/00 Check Stock.bru" "Transfer-Consolidate/01 Get Consol Locations.bru" "Transfer-Consolidate/02 Create Consolidate Transfer.bru" \
+npx @usebruno/cli@2 run "Transfer-Consolidate/00 Check Stock.bru" "Transfer-Consolidate/01 Get Consol Locations.bru" "Transfer-Consolidate/02 Create Consolidate Transfer.bru" "Transfer-Consolidate/18 Check Consol Location.bru" "Transfer-Consolidate/19 Create At Busy Consol Location (reject).bru" \
   "Transfer-Consolidate/03 Get Pair by Consolidate No.bru" "Transfer-Consolidate/15 Get Consol Out By Location.bru" "Transfer-Consolidate/16 Get Transfer By Company Site.bru" "Transfer-Consolidate/17 Get Transfer Code Like And Dates.bru" "Transfer-Consolidate/04 Save Consol Out Confirm.bru" "Transfer-Consolidate/05 Complete Consol Out.bru" \
   "Transfer-Consolidate/05a Check Stock After Out.bru" "Transfer-Consolidate/06 Get Consol In.bru" "Transfer-Consolidate/12 Get Consol In By Location.bru" "Transfer-Consolidate/13 Claim Consol In Task.bru" "Transfer-Consolidate/07 Save Consol In Partial.bru" \
   "Transfer-Consolidate/08 Complete Consol In Partial (reject).bru" "Transfer-Consolidate/09 Save Consol In Full.bru" "Transfer-Consolidate/14 Release Consol In Task.bru" "Transfer-Consolidate/10 Complete Consol In.bru" \
@@ -27,6 +27,9 @@ npx @usebruno/cli@2 run "Transfer-Consolidate/00 Check Stock.bru" "Transfer-Cons
 - เคสสต็อก `RETURN`: ตั้ง env `storageType: RETURN` + `srcLocation`/`receiveDate` ของสต็อก RETURN แล้วรัน flow เดิม — `04` (update-transfer) ต้องจองผ่าน (เดิม backend ส่ง `NORMAL` ตายตัวจึง error `not found inventory`, แก้ 2026-10-29)
 
 ## หมายเหตุ
+- `18` เช็ก Consol Location ว่าง (`check-consol-location`) รันหลัง 02 ต้องได้ `available=false` + `busy_by`; หลัง `10 Complete Consol In` รัน `18` ซ้ำต้องได้ `available=true`
+- `19` สร้าง CTF ที่ Consol Location เดียวกับ 02 ขณะ CTF จาก 02 ยังไม่จบ ต้องถูกปฏิเสธ `consol location <location> is in use by <CTF no>` (รันหลัง 02 ก่อน 10; ไม่เก็บ var ใดๆ)
+- `revert-transfer` ปฏิเสธ transfer ประเภท TF-CONSOL แล้ว: CTF ที่ถูก cancel แล้ว revert ไม่ได้ ต้องสร้าง CTF ใหม่
 - `17` ใช้ `transfer_code_like` (ILIKE) + `create_date_start/end` (มี `update_date_start/end` ด้วย) แบบ filter row หน้าเว็บ (รันหลัง 03)
 - `16` ใช้ `company_codes` + `source_site_codes` (มี `dest_site_codes` ด้วย) กรองด้วย company/site ของ Consol Out จาก 03 (รันหลัง 03)
 - `15` ใช้ `dest_location_codes` หา Transfer Out ที่มี item ปลายทางเป็น Consol Location (รันหลัง 02; ผลต้องมี Consol Out ของ flow นี้)

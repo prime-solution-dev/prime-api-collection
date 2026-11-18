@@ -1,0 +1,45 @@
+meta {
+  name: 19 Create At Busy Consol Location (reject)
+  type: http
+  seq: 19
+}
+
+docs {
+  สร้าง CTF ใหม่ที่ Consol Location เดียวกับ 02 ระหว่างที่ CTF จาก 02 ยังไม่จบ ต้องถูกปฏิเสธ
+  error: "consol location <location> is in use by <CTF no>"; รันหลัง 02 และก่อน 10
+}
+
+post {
+  url: {{DOC_URL}}/transfer/create-transfer
+  body: json
+  auth: inherit
+}
+
+body:json {
+  [{
+    "is_consolidate": true,
+    "company_code": "{{companyCode}}",
+    "status": "PENDING",
+    "transfer_item": [{
+      "transfer_item": "1",
+      "product_code": "{{productCode}}",
+      "unit_code": "{{unitCode}}",
+      "qty": {{qty}},
+      "receive_date": "{{receiveDate}}",
+      "storage_type": "{{storageType}}",
+      "src_site_code": "{{siteCode}}",
+      "src_warehouse_code": "{{warehouseCode}}",
+      "src_location_code": "{{srcLocation}}",
+      "dest_site_code": "{{siteCode}}",
+      "dest_warehouse_code": "{{warehouseCode}}",
+      "dest_location_code": "{{consolLocation}}"
+    }]
+  }]
+}
+
+tests {
+  test("500 consol location in use", function () {
+    expect(res.status).to.equal(500);
+    expect(res.body.error).to.contain("is in use by");
+  });
+}
