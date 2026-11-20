@@ -1,0 +1,25 @@
+meta {
+  name: Version
+  type: http
+  seq: 2
+}
+
+docs {
+  commit ที่ container นี้ build มา — ใช้ยืนยันหลัง deploy ว่า image ใหม่ขึ้นแล้ว (เทียบ sha กับ branch ที่ deploy)
+  ไม่ต้องใช้ token. sha ว่าง = binary ถูก build โดยไม่มี .git; ตอบ {"status":"ok"} ที่ไม่มี sha = build ก่อน PR นี้
+}
+
+get {
+  url: {{GR_URL}}/healthz?action=version
+  body: none
+  auth: none
+}
+
+params:query {
+  action: version
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("มี sha 40 ตัวอักษร", function () { expect(res.body.sha).to.match(/^[0-9a-f]{40}$/); });
+}
