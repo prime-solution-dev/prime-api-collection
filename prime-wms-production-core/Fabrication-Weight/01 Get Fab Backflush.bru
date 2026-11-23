@@ -1,0 +1,46 @@
+meta {
+  name: 01 Get Fab Backflush
+  type: http
+  seq: 1
+}
+
+docs {
+  ข้อมูล panel Backflush Input + Actual QTY ของ input + Waste/Service Fee/ต้นทุนของ output (อ่าน DB อย่างเดียว)
+  inputs[]: plan_qty/plan_weight, actual_qty/actual_weight (ตัดไปแล้ว), remain_qty/remain_weight
+  outputs[]: waste_percent, service_fee, total_weight, loss_weight, service_cost, cost_per_lot,
+             unit_price_pc, unit_price_kg, cuts[] (ตัดจาก input ไหน กี่ชิ้น กี่ kg เรียงตาม seq)
+}
+
+post {
+  url: {{PROD_URL}}/assembly/get-fab-backflush
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "assembly_code": "{{assemblyCode}}"
+  }
+}
+
+script:post-response {
+  const o = ((res.body || {}).outputs || []).find(x => (x.cuts || []).length === 0 && x.status !== "CANCELED");
+  if (o) bru.setVar("outputItem", o.output_item);
+}
+
+tests {
+  test("ok", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.inputs).to.be.an("array");
+    expect(res.body.outputs).to.be.an("array");
+  });
+  test("actual ไม่เกิน plan", function () {
+    for (const i of res.body.inputs) {
+      expect(i.actual_weight).to.be.at.most(i.plan_weight + 0.001);
+    }
+  });
+}

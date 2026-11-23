@@ -1,0 +1,12 @@
+meta {
+  name: Fabrication-Weight
+  seq: 3
+}
+
+docs {
+  FABRICATION backflush ตามน้ำหนัก (TMI)
+  Confirm Item ทีละ output → Total kg = FG kg ÷ (1 − waste%) → ตัดวัตถุดิบ FIFO ตามบรรทัด input
+  → GI เท่าที่ใช้ + จองส่วนที่เหลือคืน → GR FG → hook FAB/FAB/CONFIRM_ITEM (เฉพาะ line ที่กดรอบนี้)
+  เหล็กหมดใบ = ปิดใบอัตโนมัติ ; ปิดเองใช้ 03 Complete (ปลดจองวัตถุดิบที่เหลือ)
+  ตั้ง var assemblyCode เป็นเลข FAB ที่สร้างจากหน้าจอแล้ว
+}
