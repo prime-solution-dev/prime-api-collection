@@ -1,0 +1,27 @@
+meta {
+  name: Get Customer Group Master List
+  type: http
+  seq: 3
+}
+
+docs {
+  รายการกลุ่ม Customer Group Master (CG01-CG04 ฯลฯ) — ต้องยังตอบได้ปกติหลังแยกตาราง
+}
+
+post {
+  url: {{OMS_CUSTOMER_URL}}/group/get-customer-group-master-list
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {}
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}

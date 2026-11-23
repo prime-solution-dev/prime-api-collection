@@ -1,0 +1,28 @@
+meta {
+  name: Get Group
+  type: http
+  seq: 1
+}
+
+docs {
+  ดึงกลุ่มของหน้า Customer Permission (ตาราง customer_permission_group) — ต้องไม่มี group_code รูปแบบ CGnn (อยู่ที่ Customer Group Master)
+}
+
+post {
+  url: {{OMS_CUSTOMER_URL}}/group/get-group
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {}
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("no CG group", function () { expect(res.body.data.every(g => !/^CG\d+$/.test(g.group_code))).to.equal(true); });
+}

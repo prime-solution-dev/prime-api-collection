@@ -1,0 +1,28 @@
+meta {
+  name: Create Group - Reserved CG
+  type: http
+  seq: 2
+}
+
+docs {
+  หน้า Customer Permission สร้างกลุ่มรหัส CGnn ไม่ได้ (สงวนไว้ให้ Customer Group Master) — ไม่เขียนข้อมูล
+}
+
+post {
+  url: {{OMS_CUSTOMER_URL}}/group/create-group
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {"datas":[{"group_code":"CG99","group_name":"should fail"}]}
+}
+
+tests {
+  test("500", function () { expect(res.status).to.equal(500); });
+  test("reserved", function () { expect(res.body.error).to.contain("reserved for Customer Group Master"); });
+}
