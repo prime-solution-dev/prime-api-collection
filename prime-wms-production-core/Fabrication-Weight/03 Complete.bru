@@ -1,0 +1,33 @@
+meta {
+  name: 03 Complete
+  type: http
+  seq: 3
+}
+
+docs {
+  ปิดใบเองก่อนวัตถุดิบหมด: GR ที่ค้างต้องผ่านก่อน → ปลดจองวัตถุดิบที่เหลือ → output ที่ยังไม่ confirm = CANCELED
+  remaining_weight = kg วัตถุดิบที่คืนกลับไปใช้ต่อได้
+}
+
+post {
+  url: {{PROD_URL}}/assembly/complete-fab-weight
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "assembly_code": "{{assemblyCode}}"
+  }
+}
+
+tests {
+  test("ok", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.status).to.equal("success");
+  });
+}

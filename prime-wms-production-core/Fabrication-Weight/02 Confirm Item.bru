@@ -1,0 +1,46 @@
+meta {
+  name: 02 Confirm Item
+  type: http
+  seq: 2
+}
+
+docs {
+  Confirm output ทีละ line (ส่งได้หลาย line ระบบเรียงตาม output_item เอง)
+  qty/kg/location/batch อ่านจาก DB — ส่งแค่ output_item + waste_percent/service_fee (ไม่ส่ง = ใช้ค่าที่บันทึกไว้ / waste 2.222)
+  INTERNAL: service fee = 0 เสมอ
+  error: FG เกินวัตถุดิบที่เหลือ = ไม่ตัดอะไรเลย (แก้น้ำหนักแล้ว confirm ใหม่)
+  status=partial = ตัดวัตถุดิบแล้วแต่ GR ล้ม → ส่ง outputs ว่างเพื่อ retry GR
+  ส่งซ้ำ line เดิม = ไม่ตัดซ้ำ
+}
+
+post {
+  url: {{PROD_URL}}/assembly/update-item-output-complete
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "assembly_code": "{{assemblyCode}}",
+    "outputs": [
+      { "output_item": "{{outputItem}}", "waste_percent": 2.222, "service_fee": 0.6 }
+    ]
+  }
+}
+
+tests {
+  test("ok", function () {
+    expect(res.status).to.equal(200);
+    expect(["success", "partial"]).to.include(res.body.status);
+  });
+  test("ต้นทุน = วัตถุดิบ + ค่าบริการ", function () {
+    for (const l of res.body.items || []) {
+      expect(l.cost_per_lot).to.be.closeTo(l.material_cost + l.service_cost, 0.000002);
+      expect(l.total_weight).to.be.at.least(l.fg_weight);
+    }
+  });
+}
