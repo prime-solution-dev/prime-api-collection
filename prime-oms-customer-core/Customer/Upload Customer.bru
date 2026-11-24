@@ -8,8 +8,9 @@ docs {
   อัปโหลด Excel เทมเพลต UAT_7 (4 sheet: Information / Sold to / Bill to / Ship to) เพื่อ upsert customer
   ตั้ง {{uploadFile}} เป็น path ไฟล์ .xlsx ในเครื่อง (ห้าม commit ไฟล์ลูกค้าจริง)
   ไฟล์เทมเพลตเก่า (UAT_4) ต้องได้ 500 "header column N1 ไม่ตรงเทมเพลต UAT_7"
-  ผลข้างเคียง: hook CUSTOMER_TO_SAB (SAP BusinessPartnerSync) + CUSTOMER_TO_WMS (WMS create-customer-wms) ถูกเรียกต่อ
-  รันด้วย CLI: --env-var uploadFile=/path/file.xlsx
+  ผลข้างเคียง: hook CUSTOMER_TO_SAB (SAP BusinessPartnerSync) + CUSTOMER_TO_WMS (ลูกค้าใหม่ create-customer-wms, ลูกค้าที่มีใน OMS แล้ว update-customer-wms)
+  CLI: @file({{uploadFile}}) ไม่ถูกแทนค่าด้วย --env-var (ENOENT) ให้ยิงด้วย curl แทน:
+  curl -H "Authorization: Bearer $TOKEN" -F file=@/path/file.xlsx {{OMS_CUSTOMER_URL}}/Customer/UploadCustomer
 }
 
 post {
