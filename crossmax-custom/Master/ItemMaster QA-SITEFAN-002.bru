@@ -1,0 +1,55 @@
+meta {
+  name: ItemMaster QA-SITEFAN-002
+  type: http
+  seq: 4
+}
+
+docs {
+  DfltWH=WH-DS: site เดียว (PG01)
+  เขียนข้อมูลบน env: ยิงบน UAT ต้องได้อนุญาตจากผู้ใช้ก่อน. ไม่ต้องใช้ token (middleware ไม่ตรวจ auth)
+}
+
+post {
+  url: {{CROSSMAX_URL}}/Api/Master/ItemMaster
+  body: json
+  auth: none
+}
+
+body:json {
+    {
+      "TotalRecord": 1,
+      "ItemsList": [
+        {
+          "ItemCode": "QA-SITEFAN-002",
+          "ItemName": "QA site fanout 002",
+          "InvntItem": "Y",
+          "ItmsGrpName": "Raw materials",
+          "CreateDate": "2026-11-24",
+          "UpdateDate": "2026-11-24",
+          "OldItemCode": "",
+          "IUomEntry": 2,
+          "Status": "Active",
+          "BatchControl": "N",
+          "InvntryUom": "Gram",
+          "CMR_BU": "BU01",
+          "CMR_Product": "RMH",
+          "DfltWH": "WH-DS",
+          "UnitsList": [
+            {
+              "AltQty": 1.0,
+              "UnitEntry": 2,
+              "UnitName": "Gram",
+              "BaseQty": 1.0,
+              "BaseUnitEntry": 2,
+              "BaseUnitName": "Gram"
+            }
+          ]
+        }
+      ]
+    }
+}
+
+tests {
+  test("status 200", function() { expect(res.getStatus()).to.equal(200); });
+  test("[", function() { " });
+}

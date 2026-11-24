@@ -1,0 +1,37 @@
+meta {
+  name: WarehouseMaster ทุกคลัง map ได้
+  type: http
+  seq: 2
+}
+
+docs {
+  ส่งเฉพาะ WH-DS/WH-PKRP (ชื่อเดิม): ต้องตอบ SUCCESS
+  เขียนข้อมูลบน env: ยิงบน UAT ต้องได้อนุญาตจากผู้ใช้ก่อน. ไม่ต้องใช้ token (middleware ไม่ตรวจ auth)
+}
+
+post {
+  url: {{CROSSMAX_URL}}/Api/Master/WarehouseMaster
+  body: json
+  auth: none
+}
+
+body:json {
+    {
+      "TotalRecord": 2,
+      "ItemsList": [
+        {
+          "WhseCode": "WH-DS",
+          "WhseName": "DropShip"
+        },
+        {
+          "WhseCode": "WH-PKRP",
+          "WhseName": "คลังวัตถุดิบหลัก - โพธิ์แก้ว (ของดี)"
+        }
+      ]
+    }
+}
+
+tests {
+  test("status 200", function() { expect(res.getStatus()).to.equal(200); });
+  test("[", function() { " });
+}

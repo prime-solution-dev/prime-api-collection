@@ -1,0 +1,41 @@
+meta {
+  name: WarehouseMaster ข้ามคลังที่ map ไม่ได้
+  type: http
+  seq: 1
+}
+
+docs {
+  WH-FGCN (prefix FG ไม่อยู่ใน site map) อยู่ตรงกลาง: ต้องตอบ ERROR skipped 1 of 3 แต่ WH-DS/WH-PKRP ถูก upsert
+  เขียนข้อมูลบน env: ยิงบน UAT ต้องได้อนุญาตจากผู้ใช้ก่อน. ไม่ต้องใช้ token (middleware ไม่ตรวจ auth)
+}
+
+post {
+  url: {{CROSSMAX_URL}}/Api/Master/WarehouseMaster
+  body: json
+  auth: none
+}
+
+body:json {
+    {
+      "TotalRecord": 3,
+      "ItemsList": [
+        {
+          "WhseCode": "WH-DS",
+          "WhseName": "DropShip"
+        },
+        {
+          "WhseCode": "WH-FGCN",
+          "WhseName": "QA fanout missing site"
+        },
+        {
+          "WhseCode": "WH-PKRP",
+          "WhseName": "คลังวัตถุดิบหลัก - โพธิ์แก้ว (ของดี)"
+        }
+      ]
+    }
+}
+
+tests {
+  test("status 200", function() { expect(res.getStatus()).to.equal(200); });
+  test("[", function() { " });
+}
