@@ -1,0 +1,65 @@
+meta {
+  name: GoodsReturn
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{CROSSMAX_URL}}/Api/Transaction/GoodsReturn
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  [
+    {
+      "bill_to_code": "",
+      "company_code": "CMC",
+      "customer_code": "",
+      "delivery_date": null,
+      "document_ref": "OB1782289114802423210-0",
+      "document_ref_sale": "GRT2606-92406",
+      "goods_issue_items": [
+        {
+          "batch_code": "140626",
+          "container_code": "",
+          "document_ref_item": "OB-ITEM-1782289114802433337-0-0",
+          "exp_date": "2028-06-14T00:00:00Z",
+          "location_code": "Pack-WH-BJFFG-1-1",
+          "mfg_date": "2026-06-14T00:00:00Z",
+          "order_code": "ORD-20260624151742",
+          "order_item": "ORD-20260624151742-001",
+          "pallet_code": "",
+          "product_code": "PMBT-PTS03-001",
+          "qty": 5,
+          "receive_date": "2026-06-18T00:00:00Z",
+          "sale_code": "GRT2606-92406",
+          "sale_item": "1",
+          "serial_code": "",
+          "storage_type": "NORMAL",
+          "unit_code": "",
+          "warehouse_code": "WH-BJFFG",
+          "weight": 0
+        }
+      ],
+      "order_date": "2026-06-24T08:17:43.138214Z",
+      "remark": "",
+      "ship_to_code": "",
+      "shipping_address": "",
+      "site_code": "BJF-BJF"
+    }
+  ]
+}
+
+docs {
+  WMS_BaseLine ที่ส่งไป SAP = ตัวแทนกลุ่มของ GR line ที่คืน (ค่าเดียวกับที่ GoodsReceiptPO ส่ง); BaseRef = เลข GR
+  ยิงแล้วสร้างเอกสารใน SAP จริง: ใช้กับ env ที่ได้รับอนุญาตให้เขียนเท่านั้น. ไม่ต้องใช้ token
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}

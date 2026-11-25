@@ -1,0 +1,139 @@
+meta {
+  name: GoodsReceiptPO
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{CROSSMAX_URL}}/Api/Transaction/GoodsReceiptPO
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  [
+    {
+      "company_code": "CMC",
+      "create_dtm": "2026-06-29T09:44:01.380927Z",
+      "doc_entry": 72,
+      "document_ref": "PGR2606-4088",
+      "document_ref_type": "IB",
+      "goods_receive_item": [
+        {
+          "alt_qty": 300,
+          "alt_unit": "KG",
+          "base_qty": 300000,
+          "base_unit_code": "Gram",
+          "batch_no": "SAP_3",
+          "document_ref_item": "0",
+          "expiry_date": "2026-07-03T09:48:10.857Z",
+          "goods_receive_confirm": [
+            {
+              "base_qty": 300000,
+              "base_unit_code": "Gram",
+              "batch_no": "",
+              "container_code": "",
+              "expiry_date": null,
+              "goods_receive_confirm_serial": [],
+              "location_code": "",
+              "mfg_date": null,
+              "pallet_code": "",
+              "qty": 300000,
+              "receive_confirm_id": "127994bd-aec1-4f9d-be7d-f57d13fb8cf2",
+              "receive_date": null,
+              "receive_item_id": "173c6089-1dae-4fe3-a945-557896d7ff14",
+              "remark": "",
+              "status": "",
+              "storage_type": "NORMAL",
+              "total_weight": 0,
+              "unit_code": "Gram",
+              "weight_unit": "",
+              "zone_code": ""
+            }
+          ],
+          "goods_receive_suggest_batch": [],
+          "goods_receive_suggest_serial": [],
+          "line_product": 0,
+          "mfg_date": "2026-07-03T09:48:10.857Z",
+          "product_code": "RMFL-BNF01",
+          "qty": 300000,
+          "receive_date": "2026-06-29T09:48:45.480045Z",
+          "receive_item": "59a64d56-3dcf-491e-b3a6-f7d19eba0a16",
+          "receive_item_id": "173c6089-1dae-4fe3-a945-557896d7ff14",
+          "storage_type": "NORMAL",
+          "unit_code": "Gram",
+          "warehouse_code": "WH-PKRP"
+        },
+        {
+          "alt_qty": 200,
+          "alt_unit": "KG",
+          "base_qty": 200000,
+          "base_unit_code": "Gram",
+          "batch_no": "SAP_4",
+          "document_ref_item": "0",
+          "expiry_date": "2026-07-03T09:48:14.036Z",
+          "goods_receive_confirm": [
+            {
+              "base_qty": 200000,
+              "base_unit_code": "Gram",
+              "batch_no": "",
+              "container_code": "",
+              "expiry_date": null,
+              "goods_receive_confirm_serial": [],
+              "location_code": "",
+              "mfg_date": null,
+              "pallet_code": "",
+              "qty": 200000,
+              "receive_confirm_id": "23e0b46f-256e-48a4-9e15-8969041637c2",
+              "receive_date": null,
+              "receive_item_id": "e1831d92-c377-4c5a-aa09-e0bd0f4ba862",
+              "remark": "",
+              "status": "",
+              "storage_type": "NORMAL",
+              "total_weight": 0,
+              "unit_code": "Gram",
+              "weight_unit": "",
+              "zone_code": ""
+            }
+          ],
+          "goods_receive_suggest_batch": [],
+          "goods_receive_suggest_serial": [],
+          "line_product": 0,
+          "mfg_date": "2026-07-03T09:48:14.036Z",
+          "product_code": "RMFL-BNF01",
+          "qty": 200000,
+          "receive_date": "2026-06-29T09:48:45.480045Z",
+          "receive_item": "229d0b73-c74b-48bf-a802-55765e201d72",
+          "receive_item_id": "e1831d92-c377-4c5a-aa09-e0bd0f4ba862",
+          "storage_type": "NORMAL",
+          "unit_code": "Gram",
+          "warehouse_code": "WH-PKRP"
+        }
+      ],
+      "is_kernal": false,
+      "receive_code": "EGR2606-2433408",
+      "receive_date": "2026-06-29T09:48:45.480045Z",
+      "receive_id": "ebc050cb-f2b4-4722-8fe6-dc199fca3513",
+      "receive_type": "IBT-01",
+      "remark": "",
+      "site_code": "CPK-Crossmax-Pho-Keaw",
+      "status": "COMPLETED",
+      "submit_date": null,
+      "warehouse_code": "WH-PKRP"
+    }
+  ]
+}
+
+docs {
+  GR ที่หลาย line ชี้ PO line เดียวกันถูกยุบเป็น 1 LineItem หลาย BatchDetails; WMS_BaseLine = receive_item น้อยสุดของกลุ่ม
+  body นี้: 2 goods_receive_item, document_ref_item เดียวกัน ("0"), product_code เดียวกัน, batch_no ต่างกัน (SAP_3 / SAP_4)
+  ยิงแล้วสร้างเอกสารใน SAP จริง: ใช้กับ env ที่ได้รับอนุญาตให้เขียนเท่านั้น. ไม่ต้องใช้ token
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}
