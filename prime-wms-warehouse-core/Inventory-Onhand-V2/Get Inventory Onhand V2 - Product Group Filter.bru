@@ -1,0 +1,44 @@
+meta {
+  name: Get Inventory Onhand V2 - Product Group Filter
+  type: http
+  seq: 2
+}
+
+docs {
+  ค้น inventory หน้า Transfer Create mode AVAILABLE ด้วย Product G.1 / G.2
+  `product_group1` / `product_group2` = item_name ของ group seq 1 / 2 (จาก /Product/GetGroup, ตรงตัว case-sensitive)
+  backend แปลงเป็น product_codes ผ่าน product-core ก่อนแบ่งหน้า; ไม่มีสินค้าตรง → total_record 0
+  Dev ยังไม่มี product ที่ผูก group seq 1/2 จึงคาดผล 0 แถว; บน Crossmax-main ลองค่า เช่น `FG-RTD`
+}
+
+post {
+  url: {{WH_URL}}/Inventory/v2/GetInventoryOnhand
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "page": 1,
+    "page_size": 50,
+    "warehouse_code": ["{{onhandWarehouse}}"],
+    "product_group1": ["{{onhandGroup1}}"],
+    "company_code": "{{onhandCompany}}",
+    "site_code": "{{onhandSite}}",
+    "mode": "AVAILABLE"
+  }
+}
+
+vars:pre-request {
+  onhandCompany: 7eb85b75-e708-4e5d-9010-4b43427c15be
+  onhandSite: PRM-00A
+  onhandWarehouse: PRM-FG-001
+  onhandGroup1: NOPE-GROUP
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("unknown group gives empty result", function () {
+    expect(res.body.total_record).to.equal(0);
+  });
+}

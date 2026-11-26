@@ -1,0 +1,45 @@
+meta {
+  name: Get Inventory Onhand V2 - Batch Filter
+  type: http
+  seq: 1
+}
+
+docs {
+  ค้น inventory หน้า Transfer Create (`/transfer/create`) mode AVAILABLE
+  `batch_nos` = batch ที่เลือก (ตรงตัว, หลายค่าได้) — ก่อน feature/transfer-create-inventory-filters ค่านี้ถูก ignore
+  ผลทุกแถวต้องมี batch_no อยู่ใน batch_nos
+}
+
+post {
+  url: {{WH_URL}}/Inventory/v2/GetInventoryOnhand
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "page": 1,
+    "page_size": 50,
+    "warehouse_code": ["{{onhandWarehouse}}"],
+    "batch_nos": ["{{onhandBatch}}"],
+    "company_code": "{{onhandCompany}}",
+    "site_code": "{{onhandSite}}",
+    "mode": "AVAILABLE"
+  }
+}
+
+vars:pre-request {
+  onhandCompany: 7eb85b75-e708-4e5d-9010-4b43427c15be
+  onhandSite: PRM-00A
+  onhandWarehouse: PRM-FG-001
+  onhandBatch: BAT_P_002
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("only selected batch", function () {
+    const rows = res.body.datas || [];
+    expect(rows.length).to.be.above(0);
+    rows.forEach(function (r) { expect(r.batch_no).to.equal(bru.getRequestVar("onhandBatch")); });
+  });
+}
