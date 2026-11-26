@@ -1,0 +1,38 @@
+meta {
+  name: 02 Get Goods Receives
+  type: http
+  seq: 2
+}
+
+docs {
+  ดึง GR ตาม receive_code (path สะกด "recieves" ตามโค้ด)
+  goods_receive_item[].complete_ref: uuid หนึ่งค่าต่อการกด complete หนึ่งครั้ง (item ที่ complete ใน call เดียวกันได้ค่าเดียวกัน); item ที่ยังไม่ complete หรือ complete ก่อนมี field นี้เป็น null
+  crossmax-custom ใช้ค่านี้ตอน GoodsReturn หา WMS_BaseLine ที่ GoodsReceiptPO ส่งไว้
+}
+
+post {
+  url: {{GR_URL}}/get-goods-recieves
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "receive_code": ["{{receiveCode}}"]
+  }
+}
+
+tests {
+  test("status 200 และ item มี field complete_ref", function () {
+    expect(res.status).to.equal(200);
+    (res.body.goods_receive || []).forEach(gr => {
+      (gr.goods_receive_item || []).forEach(it => {
+        expect(it).to.have.property("complete_ref");
+      });
+    });
+  });
+}
