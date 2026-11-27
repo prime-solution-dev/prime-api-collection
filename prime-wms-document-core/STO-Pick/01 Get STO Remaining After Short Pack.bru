@@ -1,0 +1,27 @@
+meta {
+  name: Get STO Remaining After Short Pack
+  type: http
+  seq: 1
+}
+
+docs {
+  STO ที่ outbound COMPLETED แต่ pack ขาด: remaining_qty = qty - ยอด pack จริง (PR #526). Dev: STO2607-00034 ก่อน pick ต่อ remaining 20.1234 picked 5.4322
+}
+
+post {
+  url: {{DOC_URL}}/sto/get-sto
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {"sto_no_like":"STO2607-00034","page":1,"page_size":5}
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}

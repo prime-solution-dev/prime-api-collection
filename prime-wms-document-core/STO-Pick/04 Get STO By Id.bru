@@ -1,0 +1,27 @@
+meta {
+  name: Get STO By Id
+  type: http
+  seq: 4
+}
+
+docs {
+  header picked_qty / remaining_qty ของ STO (PR #526). id = order.id ของ STO (Dev STO2607-00034)
+}
+
+post {
+  url: {{DOC_URL}}/sto/get-sto-by-id
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {"id":"7b0ab802-b343-4498-b70a-f325a4d2d334"}
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}

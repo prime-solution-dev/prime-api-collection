@@ -1,0 +1,27 @@
+meta {
+  name: Get STO Only Remaining Pick
+  type: http
+  seq: 3
+}
+
+docs {
+  หน้าเลือก STO ของ Create Picking: ต้องไม่มีใบที่ remaining = 0
+}
+
+post {
+  url: {{DOC_URL}}/sto/get-sto
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {"status":["PENDING"],"sto_type":["STO_PICKING"],"only_remaining_pick":true,"page":1,"page_size":100}
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}

@@ -1,0 +1,27 @@
+meta {
+  name: Get STO Pending Outbound Full Reserve
+  type: http
+  seq: 2
+}
+
+docs {
+  outbound PENDING ยังจองเต็ม: remaining_qty 4.5556 เท่าเดิม
+}
+
+post {
+  url: {{DOC_URL}}/sto/get-sto
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {"sto_no_like":"STO2607-00030","page":1,"page_size":5}
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+}
