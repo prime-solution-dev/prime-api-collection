@@ -1,0 +1,41 @@
+meta {
+  name: Confirm
+  type: http
+  seq: 2
+}
+
+docs {
+  GR Import confirm (multipart): ตรวจไฟล์แล้วรันทั้ง flow ในคำขอเดียว ได้ {import_id, status}
+  ต้องมี assembly เปิดอยู่ที่ from site ที่ output = product ในไฟล์ (เช็กด้วย production-core /assembly/find-open-by-output)
+  ไฟล์ xlsx หัวคอลัมน์: Product Code, Qty, Unit, Pallet No, Carton No, Batch No, Serial No, Mfg Date, Exp Date, Storage Type
+  ตัวอย่างบน Dev: from PRM-00A, FG-00001, dest PRM_2 / wh PRM-001, storage NORMAL
+  Bruno CLI ไม่แทน {{grImportFile}} ใน @file() (ENOENT) ให้รันใน Bruno app หรือใช้ curl -F file=@... แทน
+  company_code: Dev = 7eb85b75-e708-4e5d-9010-4b43427c15be, Crossmax-Main = CMC (ตั้ง --env-var companyCode=...)
+  สินค้าต้องมีใน product master ของ dest site และ basket ของ GR ต้นทางขึ้นเมื่อสินค้ามีหน่วย container (ratio>0) ที่ from site
+}
+
+post {
+  url: {{DOC_URL}}/gr-import/confirm
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:multipart-form {
+  file: @file({{grImportFile}})
+  from_site_code: {{fromSiteCode}}
+  dest_site_code: {{destSiteCode}}
+  receiving_warehouse_code: {{receivingWarehouseCode}}
+  company_code: {{companyCode}}
+  remark: qa-gr-import-hook
+}
+
+tests {
+  test("200 COMPLETED", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body.status).to.equal("COMPLETED");
+  });
+}
