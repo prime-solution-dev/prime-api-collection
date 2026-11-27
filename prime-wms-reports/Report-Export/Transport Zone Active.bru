@@ -1,0 +1,24 @@
+meta {
+  name: Transport Zone Active
+  type: http
+  seq: 11
+}
+
+docs {
+  active_flg: true/false/ว่าง
+}
+
+post {
+  url: {{REPORTS_URL}}/report/ExportTransportZoneV2
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {"company_code":["CMC"],"active_flg":"true"}
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("มี link", function () { expect(res.body.link).to.be.a('string'); });
+}

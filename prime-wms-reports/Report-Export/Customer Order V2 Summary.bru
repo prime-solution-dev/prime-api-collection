@@ -1,0 +1,24 @@
+meta {
+  name: Customer Order V2 Summary
+  type: http
+  seq: 2
+}
+
+docs {
+  ยิงซ้ำ ลำดับแถวต้องเท่าเดิม
+}
+
+post {
+  url: {{REPORTS_URL}}/report/ExportCustomerOrderSummaryV2
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {"company_code":["CMC"],"site_code":["CPK-Crossmax-Pho-Keaw"],"created_date_from":"2026-11-26T00:00:00+07:00","created_date_to":"2026-11-26T23:59:59+07:00"}
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("มี link", function () { expect(res.body.link).to.be.a('string'); });
+}

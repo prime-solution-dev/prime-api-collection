@@ -1,0 +1,24 @@
+meta {
+  name: Unit Active
+  type: http
+  seq: 8
+}
+
+docs {
+  status: All/Active/Inactive/ว่าง ต้องไม่ได้ invalid status
+}
+
+post {
+  url: {{REPORTS_URL}}/report/ExportUnit
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {"company_code":["CMC"],"status":"Active"}
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("มี link", function () { expect(res.body.link).to.be.a('string'); });
+}

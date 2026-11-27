@@ -1,0 +1,24 @@
+meta {
+  name: Customer Order V2 Detail
+  type: http
+  seq: 1
+}
+
+docs {
+  Customer Order Ver.2 (RPT-CO-V2) 11 คอลัมน์ มี SO Ref. No.
+}
+
+post {
+  url: {{REPORTS_URL}}/report/ExporCustomerOrderV2
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {"company_code":["CMC"],"site_code":["CPK-Crossmax-Pho-Keaw"],"created_date_from":"2026-11-26T00:00:00+07:00","created_date_to":"2026-11-26T23:59:59+07:00"}
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("มี link", function () { expect(res.body.link).to.be.a('string'); });
+}

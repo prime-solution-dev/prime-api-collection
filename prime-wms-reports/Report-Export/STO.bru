@@ -1,0 +1,24 @@
+meta {
+  name: STO
+  type: http
+  seq: 5
+}
+
+docs {
+  ชีต STO_Header/STO_Detail เรียงตามวันที่; GR qty จาก GR COMPLETED ของ inbound ที่อ้าง STO
+}
+
+post {
+  url: {{REPORTS_URL}}/report/ExportSTO
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {"statuses":"ALL","sto_type":"ALL","company_code":["CMC"]}
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("มี link", function () { expect(res.body.link).to.be.a('string'); });
+}
