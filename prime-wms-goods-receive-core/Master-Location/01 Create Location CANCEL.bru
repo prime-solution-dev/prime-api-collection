@@ -1,0 +1,64 @@
+meta {
+  name: 01 Create Location CANCEL
+  type: http
+  seq: 1
+}
+
+docs {
+  เหมือนหน้าจอ Master > Location > Create (เว็บ `mappingData` ใน `location-create-mapping.ts`)
+  Type = CANCEL ต้องได้ `is_cancel_pick = true` ใน DB (hotfix/cancel-pick-null; ก่อนแก้ได้ NULL)
+  locationCode สุ่มใน pre-request script; ตรวจผล:
+  `psql service=dev-warehouse -c "select location_code, location_type, is_cancel_pick from location where location_code like 'QA-CXL-%' order by create_dtm desc limit 1"`
+  ยิงซ้ำบน env ที่เขียนไม่ได้ห้าม (สร้าง location จริง)
+}
+
+post {
+  url: {{GR_URL}}/master/create-location
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  [
+    {
+      "warehouse_id": "{{locationWarehouseId}}",
+      "zone_code": "{{locationZoneCode}}",
+      "size": "XL",
+      "location_type": "CANCEL",
+      "is_default_receive": false,
+      "is_default_pick": false,
+      "is_default_pack": false,
+      "fab_in": false,
+      "fab_out": false,
+      "is_sorting_staging": false,
+      "is_crossdock_staging": false,
+      "is_production_staging": false,
+      "is_transfer_consol_staging": false,
+      "is_cancel_pick": true,
+      "is_multi_pallet": false,
+      "rack_code": "QA-CXL",
+      "bay_code": "01",
+      "level": "01",
+      "is_active": true,
+      "location_code": "{{locationCode}}",
+      "location_name": "{{locationCode}}"
+    }
+  ]
+}
+
+script:pre-request {
+  bru.setVar("locationCode", "QA-CXL-" + Date.now());
+}
+
+tests {
+  test("status 200", function () {
+    expect(res.status).to.equal(200);
+  });
+  test("created", function () {
+    expect(res.body.status).to.equal("success");
+  });
+}
