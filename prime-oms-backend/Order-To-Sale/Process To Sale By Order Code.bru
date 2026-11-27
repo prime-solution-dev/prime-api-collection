@@ -1,0 +1,35 @@
+meta {
+  name: Process To Sale By Order Code
+  type: http
+  seq: 1
+}
+
+docs {
+  ยิง pipeline order -> sale ของ order เดียว (โหมด resend/full_pipeline) ด้วย order_code; ต้องมี shop ของ order is_active=true
+  ผลที่ดู: success, และใน DB `order.error_message` ต้องไม่มี PRODUCT_MASTER_*; sale_item.unit = unit ที่ flag_base ของ product
+  เขียนข้อมูล: ใช้บน Dev; Crossmax-Main (UAT) เฉพาะเมื่อผู้ใช้อนุญาต order เดียวแล้ว cancel ทันที. รัน CLI: --env-var orderCode=<order_code>
+}
+
+post {
+  url: {{OMS_URL}}/order/process-to-sale
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "order_code": "{{orderCode}}"
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("has order_code and mode", function () {
+    expect(res.body.order_code).to.equal(bru.getEnvVar("orderCode") || res.body.order_code);
+    expect(res.body.mode).to.be.a("string");
+  });
+}

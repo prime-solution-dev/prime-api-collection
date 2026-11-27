@@ -1,0 +1,33 @@
+meta {
+  name: GetProductDetail master with company
+  type: http
+  seq: 2
+}
+
+docs {
+  is_master_data=true + company_code: กรองเฉพาะ company นั้น
+  ตัดสินจาก body: products[].company_code. อ่านอย่างเดียว
+}
+
+post {
+  url: {{OMS_PRODUCT_URL}}/Product/GetProductDetail
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "product_code": ["10123299201TH"],
+    "is_master_data": true,
+    "company_code": ["2b6b8582-f46a-43cc-9475-fa53fbdefcbc"]
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("has products", function () { expect(res.body.data || res.body.products || res.body).to.exist; });
+}

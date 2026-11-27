@@ -1,0 +1,33 @@
+meta {
+  name: GetProductDetail master no company
+  type: http
+  seq: 1
+}
+
+docs {
+  is_master_data=true ไม่ส่ง company_code: ไม่กรอง company (คืนทุก company)
+  ตัดสินจาก body: products[].company_code. อ่านอย่างเดียว
+}
+
+post {
+  url: {{OMS_PRODUCT_URL}}/Product/GetProductDetail
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "product_code": ["10123299201TH"],
+    "is_master_data": true,
+    "company_code": null
+  }
+}
+
+tests {
+  test("200", function () { expect(res.status).to.equal(200); });
+  test("has products", function () { expect(res.body.data || res.body.products || res.body).to.exist; });
+}
